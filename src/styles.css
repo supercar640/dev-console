@@ -1,0 +1,209 @@
+/* M1 minimal theme — nods to agent-orchestrator "Warm Terminal" (warm charcoal,
+   cream text, periwinkle accent). Will be replaced by a token system later. */
+:root {
+  --bg-base: #121110;
+  --bg-surface: #1a1918;
+  --bg-elevated: #222120;
+  --text-primary: #f0ece8;
+  --text-secondary: #a8a29e;
+  --text-tertiary: #78716c;
+  --border: rgba(255, 240, 220, 0.1);
+  --border-strong: rgba(255, 240, 220, 0.18);
+  --accent: #8b9cf7;
+  --accent-hover: #a3b1fa;
+  --danger: #ef4444;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.app__topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.app__brand {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.app__tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+}
+
+.app__main {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.dashboard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.dashboard__title {
+  font-size: 17px;
+  margin: 0;
+}
+
+.btn {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.12s ease-out, border-color 0.12s ease-out;
+}
+
+.btn:hover {
+  background: #2a2928;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: #121110;
+}
+
+.btn--primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn--ghost-danger {
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
+}
+
+.btn--ghost-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 48px 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty__hint {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.alert {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-left: 2px solid;
+  font-size: 13px;
+}
+
+.alert--error {
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.06);
+  color: var(--danger);
+}
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+}
+
+.card__name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.card__path {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  word-break: break-all;
+}

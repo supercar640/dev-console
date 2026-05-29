@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+out/
+build/
+*.tsbuildinfo
+
+# Electron / Vite
+.vite/
+release/
+# electron-vite transpiles the TS config to a temp .mjs on load
+electron.vite.config.*.mjs
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# SQLite (runtime data — never commit)
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example

@@ -1,0 +1,12 @@
+# Not a real workspace — this file is pnpm 11's settings home.
+
+# pnpm 11 blocks dependency build scripts by default. Allow the ones we need:
+#  - electron: downloads its runtime binary
+#  - esbuild:  installs its prebuilt binary
+#  - better-sqlite3: DISABLED — its default install compiles for Node v24 (no
+#    prebuild → needs MSVC). We instead download the Electron prebuilt binary in
+#    the root `postinstall` (scripts/rebuild-native.mjs). No compiler required.
+allowBuilds:
+  electron: true
+  esbuild: true
+  better-sqlite3: false
