@@ -123,7 +123,7 @@ preload(`window.api`)·`shared/types.ts`의 `DevConsoleApi`에 `sessions` 묶음
 | 입력 청킹(512자/15ms/300ms) | `runtime-process/src/pty-client.ts` `ptyHostSendMessage` | 🟢 |
 | graceful teardown 시퀀스 | `runtime-process/src/pty-host.ts` shutdown | 🟢 |
 | 셸명 `.exe` 해석 | `pty-host.ts` resolvedShellCmd | 🟢 |
-| node-pty Electron 바이너리 확보 | `scripts/rebuild-node-pty.js` (패턴) | 🟢 |
+| ~~node-pty Electron 바이너리 확보~~ | ~~`scripts/rebuild-node-pty.js`~~ | ❌ 차용 안 함(동봉 prebuilt로 충분, §5) |
 | xterm 터미널 컴포넌트 | `web/src/components/terminal/` | 🟡 ws→IPC |
 
 **버리는 것**: named pipe 서버/클라이언트, 바이너리 프레이밍(0x01~0x08), `windows-pty-registry`, detached spawn. (D1로 불필요.)
@@ -136,19 +136,20 @@ preload(`window.api`)·`shared/types.ts`의 `DevConsoleApi`에 `sessions` 묶음
 
 ## 5. 네이티브 모듈 (node-pty)
 
-better-sqlite3와 동일 전략: **MSVC 없이 Electron prebuilt 다운로드.**
-- `package.json`에 `node-pty` 추가.
-- `pnpm-workspace.yaml` `allowBuilds`에 `node-pty: false`(기본 빌드 차단).
-- `scripts/rebuild-native.mjs`에 node-pty의 Electron 바이너리 확보 단계 추가. **확보 방식은 AO `scripts/rebuild-node-pty.js`를 먼저 확인해 확정**(node-pty는 prebuild-install이 아닌 다른 메커니즘일 수 있음 — 구현 계획 1단계에서 검증).
+> ✅ **스파이크 완료(2026-05-29, Task 1) — Case A.** `node-pty@1.1.0`의 **동봉 prebuilt**(`prebuilds/win32-x64/{pty,conpty,conpty_console_list}.node`, **N-API**)가 **Node v24·Electron 33 양쪽에서 그대로 로드**됨(스모크로 로드·spawn·한글·ANSI 색상 OK 확인). 따라서 포크 교체·바이너리 다운로드·MSVC 컴파일 **전부 불필요.**
 
-> ⚠️ **위험·선검증 항목**: node-pty Electron prebuilt 확보가 M2의 첫 관문. 막히면 컴파일러 경로로 빠질 수 있으므로 구현 착수 직후 이 한 가지부터 통과시킨다.
+- `package.json`에 `node-pty@1.1.0` 추가. (AO `rebuild-node-pty.js`의 node-gyp 컴파일 방식은 **차용 안 함** — 동봉 prebuilt로 충분.)
+- `pnpm-workspace.yaml` `allowBuilds`에 `node-pty: false` 추가 — node-gyp 빌드를 막고 동봉 prebuilt 사용. **이 항목이 없으면** pnpm 11이 `ERR_PNPM_IGNORED_BUILDS`로 `pnpm install`/`exec`/`dev`를 실패시킨다(스파이크 중 확인).
+- `scripts/rebuild-native.mjs` **변경 불필요**(better-sqlite3만 prebuilt 다운로드, node-pty는 동봉).
+
+⚠️ **관찰된 teardown 이슈:** 스모크가 `pty.kill()` 직후 즉시 `process.exit`하자 node-pty 헬퍼 `conpty_console_list_agent`가 `AttachConsole failed`로 죽었다(= AO가 경고한 WER `0x800700e8` 계열). 실제 앱은 graceful teardown(`disposeAll` + 필요 시 종료 지연)으로 완화하고, **Task 11 종료 검증에서 WER 다이얼로그 여부를 확인**한다.
 
 ---
 
 ## 6. 합격 기준 (검증 게이트)
 
 수동 검증(앱 실행, `pnpm dev`):
-1. **PowerShell 먼저** — 터미널 열기 → `pwsh` 왕복.
+1. **PowerShell 먼저** — 터미널 열기 → `powershell` 왕복. (이 머신엔 `pwsh`(PS7) 미설치 → 기본 셸 = `powershell` 5.1.)
    - [ ] 한글 입력·출력 안 깨짐 (`echo 안녕하세요` 등)
    - [ ] ANSI 색상 정상 (예: 컬러 출력 명령)
    - [ ] 창 리사이즈 → 터미널 cols/rows 반영
@@ -183,5 +184,6 @@ better-sqlite3와 동일 전략: **MSVC 없이 Electron prebuilt 다운로드.**
 ## 8. 미해결/주의
 
 - **단일 세션 충돌**: 세션 가동 중 다른 프로젝트에서 "터미널 열기" → M2는 기존 세션 정리 후 교체(단순). 매끄러운 전환은 M4.
+- **기본 셸**: 이 머신엔 `pwsh`(PowerShell 7) 미설치 → 세션 store 기본 명령 = `powershell`(5.1, 항상 존재). `resolveCommand` 셸 allowlist엔 pwsh·powershell·cmd 모두 유지(나중에 pwsh 설치 시 그대로 동작).
 - **claude PATH**: 검증 시 `claude`가 PATH에 있어야 함. 없으면 PowerShell 검증만으로 M2 합격 기준 충족 가능(범용 구조라 무관).
 - **ESM `.js` import 확장자**: AO 코드 복붙 시 dev-console tsconfig moduleResolution과 맞출 것(reuse-map 함정 #3).
