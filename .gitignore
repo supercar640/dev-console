@@ -38,3 +38,6 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# HITL (human-in-the-loop, 로컬 작업 파일 — 커밋 안 함)
+hitl/

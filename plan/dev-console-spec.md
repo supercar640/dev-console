@@ -357,7 +357,7 @@ dev-console/
 // Renderer → Main
 'projects:list' | 'projects:create' | 'projects:delete'
 'agents:list' | 'agents:create' | 'agents:update'
-'sessions:start' | 'sessions:stop' | 'sessions:send'
+'sessions:start' | 'sessions:stop' | 'sessions:send' | 'sessions:resize'
 'sessions:attachTerminal' | 'sessions:detachTerminal'
 'files:pickForReference'
 'schedules:list' | 'schedules:create' | 'schedules:toggle'

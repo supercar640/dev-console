@@ -44,4 +44,47 @@ export interface DevConsoleApi {
     create(input: CreateProjectInput): Promise<Project>
     delete(id: string): Promise<void>
   }
+  sessions: {
+    start(input: StartSessionInput): Promise<SessionInfo>
+    stop(sessionId: string): Promise<void>
+    send(sessionId: string, data: string): Promise<void>
+    resize(sessionId: string, cols: number, rows: number): Promise<void>
+    attachTerminal(sessionId: string): Promise<SessionInfo | null>
+    detachTerminal(sessionId: string): Promise<void>
+    /** 구독 등록. 반환된 함수를 호출하면 해제. */
+    onTerminalData(cb: (sessionId: string, data: Uint8Array) => void): () => void
+    onStatusChange(cb: (info: SessionInfo) => void): () => void
+  }
+  dialog: {
+    /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */
+    openDirectory(): Promise<string | null>
+  }
+}
+
+/** M2 PtyManager 입력 (spec §6 M2, design D3 범용 명령). */
+export interface StartOpts {
+  command: string
+  args: string[]
+  cwd: string
+  cols?: number
+  rows?: number
+}
+
+/** M2 단일 세션 런타임 정보. (lifecycle 문자열 유니온 `SessionStatus`와 별개 — M2는 running/exited만.) */
+export interface SessionInfo {
+  sessionId: string
+  status: 'running' | 'exited'
+  pid: number
+  exitCode?: number
+}
+
+/** sessions:start IPC 입력 = StartOpts + 어느 프로젝트인지. */
+export interface StartSessionInput extends StartOpts {
+  projectId: string
+}
+
+/** session:terminalData 이벤트 페이로드. data는 렌더러에서 Uint8Array로 도착. */
+export interface TerminalDataPayload {
+  sessionId: string
+  data: Uint8Array
 }

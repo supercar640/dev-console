@@ -2,9 +2,16 @@ import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import { initDatabase, closeDatabase } from './db'
 import { registerIpcHandlers } from './ipc'
+import { PtyManager } from './pty/pty-manager'
+import { spawn as nodePtySpawn } from './pty/node-pty'
 
 // Absolute principle (CLAUDE.md): Main is the real backend. PTY/session state
-// will live here and must outlive renderer windows. M1 only sets up the shell.
+// lives here and must outlive renderer windows.
+
+// PTY는 Main이 소유한다(절대원칙 #1). env는 node-pty가 요구하는 형태로 캐스팅.
+const ptyManager = new PtyManager((file, args, opts) =>
+  nodePtySpawn(file, args, { ...opts, env: opts.env as { [k: string]: string } })
+)
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -34,7 +41,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   initDatabase()
-  registerIpcHandlers()
+  registerIpcHandlers(ptyManager)
   createWindow()
 
   app.on('activate', () => {
@@ -49,5 +56,7 @@ app.on('window-all-closed', () => {
 })
 
 app.on('will-quit', () => {
+  // PTY를 먼저 정리해 node-pty conpty helper의 WER 0x800700e8를 피한다.
+  ptyManager.disposeAll()
   closeDatabase()
 })

@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
-import type { CreateProjectInput } from '@shared/types'
+import type { CreateProjectInput, Project } from '@shared/types'
 import { useProjectsStore } from '@/stores/projects'
+import { dialogApi } from '@/ipc-client'
 
-export default function Dashboard(): React.JSX.Element {
+export default function Dashboard({
+  onOpenTerminal
+}: {
+  onOpenTerminal: (p: Project) => void
+}): React.JSX.Element {
   const { projects, loading, error, load, add, remove } = useProjectsStore()
   const [showForm, setShowForm] = useState(false)
 
@@ -45,9 +50,14 @@ export default function Dashboard(): React.JSX.Element {
                 <div className="card__name">{p.name}</div>
                 <div className="card__path">{p.workspacePath}</div>
               </div>
-              <button className="btn btn--ghost-danger" onClick={() => void remove(p.id)}>
-                삭제
-              </button>
+              <div className="card__actions">
+                <button className="btn" onClick={() => onOpenTerminal(p)}>
+                  터미널 열기
+                </button>
+                <button className="btn btn--ghost-danger" onClick={() => void remove(p.id)}>
+                  삭제
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -64,6 +74,17 @@ function AddProjectForm({
   const [name, setName] = useState('')
   const [path, setPath] = useState('')
   const canSubmit = name.trim() !== '' && path.trim() !== ''
+
+  const pickFolder = async (): Promise<void> => {
+    const picked = await dialogApi.openDirectory()
+    if (!picked) return
+    setPath(picked)
+    // 이름이 비어 있으면 폴더명으로 자동 채움.
+    if (name.trim() === '') {
+      const base = picked.split(/[\\/]/).filter(Boolean).pop() ?? ''
+      setName(base)
+    }
+  }
 
   return (
     <form
@@ -85,6 +106,9 @@ function AddProjectForm({
         value={path}
         onChange={(e) => setPath(e.target.value)}
       />
+      <button type="button" className="btn" onClick={() => void pickFolder()}>
+        폴더 찾기
+      </button>
       <button className="btn btn--primary" type="submit" disabled={!canSubmit}>
         등록
       </button>

@@ -10,3 +10,6 @@ allowBuilds:
   electron: true
   esbuild: true
   better-sqlite3: false
+  # node-pty: DISABLED — 동봉 prebuilt(prebuilds/win32-x64/*.node, N-API)가 Node·Electron
+  # 양쪽에서 그대로 로드된다(M2 Task 1 스파이크 확인). node-gyp 컴파일 불필요(MSVC 불필요).
+  node-pty: false
