@@ -25,7 +25,7 @@
 ## B. 디렉토리 매핑
 
 ```
-dev-ccc/
+dev-console/
 ├── electron/
 │   ├── pty/                     ★ AO 최대 노다지
 │   │   ├── pty-host.ts          🟢 ← runtime-process/src/pty-host.ts
