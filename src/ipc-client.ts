@@ -22,3 +22,7 @@ export const sessionsApi = {
   onStatusChange: (cb: (info: SessionInfo) => void): (() => void) =>
     window.api.sessions.onStatusChange(cb)
 }
+
+export const dialogApi = {
+  openDirectory: (): Promise<string | null> => window.api.dialog.openDirectory()
+}

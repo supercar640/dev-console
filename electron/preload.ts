@@ -34,6 +34,9 @@ const api: DevConsoleApi = {
       ipcRenderer.on('session:statusChange', listener)
       return () => ipcRenderer.removeListener('session:statusChange', listener)
     }
+  },
+  dialog: {
+    openDirectory: () => ipcRenderer.invoke('dialog:openDirectory')
   }
 }
 

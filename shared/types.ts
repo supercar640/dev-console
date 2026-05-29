@@ -55,6 +55,10 @@ export interface DevConsoleApi {
     onTerminalData(cb: (sessionId: string, data: Uint8Array) => void): () => void
     onStatusChange(cb: (info: SessionInfo) => void): () => void
   }
+  dialog: {
+    /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */
+    openDirectory(): Promise<string | null>
+  }
 }
 
 /** M2 PtyManager 입력 (spec §6 M2, design D3 범용 명령). */

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { CreateProjectInput, Project } from '@shared/types'
 import { useProjectsStore } from '@/stores/projects'
+import { dialogApi } from '@/ipc-client'
 
 export default function Dashboard({
   onOpenTerminal
@@ -74,6 +75,17 @@ function AddProjectForm({
   const [path, setPath] = useState('')
   const canSubmit = name.trim() !== '' && path.trim() !== ''
 
+  const pickFolder = async (): Promise<void> => {
+    const picked = await dialogApi.openDirectory()
+    if (!picked) return
+    setPath(picked)
+    // 이름이 비어 있으면 폴더명으로 자동 채움.
+    if (name.trim() === '') {
+      const base = picked.split(/[\\/]/).filter(Boolean).pop() ?? ''
+      setName(base)
+    }
+  }
+
   return (
     <form
       className="form"
@@ -94,6 +106,9 @@ function AddProjectForm({
         value={path}
         onChange={(e) => setPath(e.target.value)}
       />
+      <button type="button" className="btn" onClick={() => void pickFolder()}>
+        폴더 찾기
+      </button>
       <button className="btn btn--primary" type="submit" disabled={!canSubmit}>
         등록
       </button>

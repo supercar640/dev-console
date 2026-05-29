@@ -1,5 +1,6 @@
 import { registerProjectHandlers } from './projects'
 import { registerSessionHandlers } from './sessions'
+import { registerDialogHandlers } from './dialog'
 import type { PtyManager } from '../pty/pty-manager'
 
 // Single entry point for all IPC handler registration (spec 부록 A).
@@ -7,4 +8,5 @@ import type { PtyManager } from '../pty/pty-manager'
 export function registerIpcHandlers(ptyManager: PtyManager): void {
   registerProjectHandlers()
   registerSessionHandlers(ptyManager)
+  registerDialogHandlers()
 }
