@@ -148,14 +148,19 @@ preload(`window.api`)·`shared/types.ts`의 `DevConsoleApi`에 `sessions` 묶음
 
 ## 6. 합격 기준 (검증 게이트)
 
+> ✅ **검증 완료 (2026-05-30, 마스터 수동 확인) — 전 항목 통과.**
+
 수동 검증(앱 실행, `pnpm dev`):
-1. **PowerShell 먼저** — 터미널 열기 → `powershell` 왕복. (이 머신엔 `pwsh`(PS7) 미설치 → 기본 셸 = `powershell` 5.1.)
-   - [ ] 한글 입력·출력 안 깨짐 (`echo 안녕하세요` 등)
-   - [ ] ANSI 색상 정상 (예: 컬러 출력 명령)
-   - [ ] 창 리사이즈 → 터미널 cols/rows 반영
-   - [ ] 대시보드로 갔다 돌아와도 이전 출력 보존(replay)
-   - [ ] "종료" → 윈도우 오류 다이얼로그(`0x800700e8`) 안 뜸, 프로세스 정리
-2. **claude** — 같은 엔진으로 기본값 `claude` 실행, 위 항목 재확인.
+1. **PowerShell** — 터미널 열기 → `powershell` 왕복. (이 머신엔 `pwsh`(PS7) 미설치 → 기본 셸 = `powershell` 5.1.)
+   - [x] 한글 입력·출력 안 깨짐
+   - [x] ANSI 색상 정상
+   - [x] 창 리사이즈 → 터미널 cols/rows 반영
+   - [x] 대시보드로 갔다 돌아와도 이전 출력 보존(replay)
+   - [x] "종료"/창 닫기 → 윈도우 오류 다이얼로그(`0x800700e8`) **안 뜸** (종료 코드 0)
+2. **claude** — [x] PowerShell 프롬프트에서 `claude` 실행 → Claude Code 인터랙티브 정상 동작.
+3. **추가(요청 반영)** — [x] 프로젝트 등록 시 네이티브 폴더 선택 다이얼로그("폴더 찾기").
+
+⚠️ **알려진 quirk(비차단):** PTY 종료 시 node-pty 보조 프로세스 `conpty_console_list_agent`가 stderr에 `AttachConsole failed`를 남긴다(개발 로그 한정, 화면 팝업 없음, 종료 코드 0, 기능 영향 없음). 별도 프로세스라 Main을 죽이지 않음 — M3 어댑터 정비 때 재검토.
 
 자동 테스트(TDD, 구현 단계):
 - `ring-buffer.ts`: append/replay, 최대 줄 수 초과 시 오래된 줄 제거 — 단위 테스트.

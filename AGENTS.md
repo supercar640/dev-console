@@ -45,11 +45,11 @@ LLM CLI(Claude Code 등)를 함대처럼 외부에서 관제하는 **Windows 네
 `claude --input-format stream-json --output-format stream-json` 이 **다중 턴 인터랙티브 제어**(stdin으로 후속 메시지 주입→응답 반복)를 지원하는지 30분 PoC로 확정한 뒤 M3 진입.
 M1·M2는 이 결과와 무관하게 선행 가능.
 
-## 마일스톤 (현재: M1 완료 — M2 대기)
+## 마일스톤 (현재: M2 완료 — M3 대기)
 
 - **M1 골격** ✅ 완료(검증). Electron+React+TS 보일러플레이트, IPC 채널 구조, SQLite 초기화/마이그레이션, 빈 대시보드(프로젝트 카드 리스트 + 추가/삭제 CRUD 왕복).
-- **M2 단일 세션** ← 다음. node-pty spawn + xterm.js 왕복 — ★ ConPTY 이식 집중 (`plan/dev-console-reuse-map.md`의 pty-host/pty-client/windows-pty-registry).
-- M3 stream-json 통합 (검증 게이트 통과 후)
+- **M2 단일 세션** ✅ 완료(검증 2026-05-30). node-pty(동봉 prebuilt·in-process, Main 소유) + xterm.js 왕복, 링버퍼 스크롤백 replay, graceful teardown. 한글·색상·리사이즈·출력보존·claude 실행·폴더 선택 다이얼로그 확인. 상세: `plan/dev-console-m2-design.md`·`dev-console-m2-plan.md`. (데몬/named pipe/orphan 레지스트리는 인프로세스 설계라 미차용.)
+- **M3 stream-json 통합** ← 다음. (⚠️ 착수 전 검증 게이트: `claude --input-format stream-json` 다중턴 PoC.)
 - M4 멀티 세션 + 영속화
 - M5 자동화 (체크리스트, 오늘 작업 시작, 개발일지)
 - M6 스케줄러 + 복구
@@ -66,7 +66,7 @@ M1·M2는 이 결과와 무관하게 선행 가능.
 - **MIT 컴플라이언스 (코드를 실제 복사할 때 필수):**
   - 차용한 파일 상단에 출처 주석 (예: `// adapted from agent-orchestrator/packages/.../pty-host.ts (MIT)`).
   - 저장소 루트의 `NOTICE`(또는 `THIRD-PARTY-LICENSES`) 파일에 agent-orchestrator의 MIT 저작권 고지 원문을 포함.
-  - ※ 2026-05-29 기준 실제 복사한 AO 코드는 0건(패턴 참고만). 첫 이식(M2) 시 위 두 가지를 함께 추가한다.
+  - ※ M2(2026-05-30)에서 AO 코드 첫 이식 완료 — 차용 파일 4개(ring-buffer·chunk-input·pty-manager·XtermPane) 상단 출처 주석 + 루트 `NOTICE`(ComposioHQ MIT 원문) 추가됨.
 
 ## 빌드 / 실행
 
