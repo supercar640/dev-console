@@ -45,3 +45,20 @@ export interface DevConsoleApi {
     delete(id: string): Promise<void>
   }
 }
+
+/** M2 PtyManager 입력 (spec §6 M2, design D3 범용 명령). */
+export interface StartOpts {
+  command: string
+  args: string[]
+  cwd: string
+  cols?: number
+  rows?: number
+}
+
+/** M2 단일 세션 런타임 정보. (lifecycle 문자열 유니온 `SessionStatus`와 별개 — M2는 running/exited만.) */
+export interface SessionInfo {
+  sessionId: string
+  status: 'running' | 'exited'
+  pid: number
+  exitCode?: number
+}
