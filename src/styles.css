@@ -207,3 +207,45 @@ body {
   color: var(--text-tertiary);
   word-break: break-all;
 }
+
+/* M2 터미널 */
+.card__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+}
+
+.terminal__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.terminal__cmd {
+  flex: 1;
+  min-width: 160px;
+  font-family: var(--font-mono);
+}
+
+.terminal__status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.terminal-host {
+  flex: 1;
+  min-height: 0;
+  background: #121110;
+  padding: 6px;
+  border: 1px solid var(--border);
+}
