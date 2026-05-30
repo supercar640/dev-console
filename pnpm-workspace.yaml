@@ -13,3 +13,13 @@ allowBuilds:
   # node-pty: DISABLED — 동봉 prebuilt(prebuilds/win32-x64/*.node, N-API)가 Node·Electron
   # 양쪽에서 그대로 로드된다(M2 Task 1 스파이크 확인). node-gyp 컴파일 불필요(MSVC 불필요).
   node-pty: false
+minimumReleaseAgeExclude:
+  - '@anthropic-ai/claude-agent-sdk-darwin-arm64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-darwin-x64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-linux-arm64-musl@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-linux-arm64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-linux-x64-musl@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-linux-x64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-win32-arm64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk-win32-x64@0.3.158'
+  - '@anthropic-ai/claude-agent-sdk@0.3.158'
