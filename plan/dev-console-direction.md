@@ -53,6 +53,24 @@
 
 ---
 
+## 2-bis. 게이트 결과 + Agent 채널 아키텍처 확정 (2026-05-30)
+
+**① 다중 턴 게이트 = ✅ PASS.** `claude --print --input-format stream-json --output-format stream-json`(claude 2.1.158)에 stdin으로 후속 user 메시지를 주입 → 응답 수신을 반복 확인. 두 턴이 동일 `session_id`를 공유하고 맥락("42")을 유지 → **one-shot 아님, 진짜 다중 턴.** (하네스: `hitl/m3-poc/multiturn-poc.mjs`)
+
+**② 그러나 "stream-json 직접 파싱"으로는 권한/질문을 못 받는다.** 도구(Bash) + `--permission-mode default`에서 모델이 `tool_use`를 낸 뒤 **권한 요청 이벤트 없이 그대로 블록**됨 → Claude Code 알려진 버그 [#34046](https://github.com/anthropics/claude-code/issues/34046)(`--permission-prompt-tool stdio`가 `can_use_tool` control_request를 안 보냄) 재현. **사람이 화면에서 승인하는 흐름을 손코딩 stream-json으로는 구현 불가.**
+
+**③ 결정: `ClaudeCodeAdapter`는 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`, TS) 위에 세운다.**
+- SDK가 내부적으로 같은 stream-json 프로토콜 + 제어 채널을 구현 → 우리는 **`canUseTool` 콜백**으로 권한 요청(도구명+입력)을 받아 GUI로 띄우고 allow/deny를 돌려준다.
+- claude가 사람에게 묻는 경우(`AskUserQuestion`)도 **같은 `canUseTool` 통로**로 들어옴 → "질문 대기 감지"가 사실상 무료.
+- 스트리밍 입력(다중 턴)·`interrupt()`·`setPermissionMode()` 제공.
+- **방향 유지:** 명세 §2-3 어댑터 추상화와 정합 — "stream-json은 ClaudeCodeAdapter의 구현 디테일"(§1-3-1)이라는 교훈 그대로. SDK는 그 디테일을 **안정적으로 제공하는 더 나은 수단**일 뿐. 고정 스택 불변(npm 의존성 1개 추가). 명세 §2-1의 "stdin/stdout JSON 직접 파싱" 문구는 이 결정으로 갱신됨.
+
+**④ SDK 증명 PoC = ✅ PASS.** SDK 0.3.158로 Write 도구 요청 시 `canUseTool` 발화(도구명/입력 수신) 확인, deny가 claude로 되돌아가 거부 처리(파일 미생성), 같은 세션 다중 턴·맥락 유지 동시 확인. (하네스: `hitl/m3-poc/sdk-proof.mjs`) ⚠️ 주의: 유저 `defaultMode:auto` 및 safe-command(예: `echo`) 자동허용을 피하려면 `settingSources:[]` + **권한 필요한 도구(Write/Edit 등)** 로 테스트해야 콜백이 발화한다.
+
+**M3 함의:** `permission_request`/`user_input_required` AgentEvent(부록 B)는 native 이벤트가 아니라 **`canUseTool` 콜백에서 합성**한다. 이벤트 파서는 SDK 메시지(`system:init` / `assistant`(text·tool_use·thinking) / `user`(tool_result) / `result` / `rate_limit_event`)를 부록 B 타입으로 매핑.
+
+---
+
 ## 3. 절대 원칙 재확인 (명세 §1-3에서 승계)
 
 - **Main 프로세스가 진짜 백엔드, Renderer는 뷰일 뿐.** PTY/세션 상태는 Main 소유.
