@@ -4,6 +4,8 @@ import { initDatabase, closeDatabase } from './db'
 import { registerIpcHandlers } from './ipc'
 import { PtyManager } from './pty/pty-manager'
 import { spawn as nodePtySpawn } from './pty/node-pty'
+import { ClaudeAgentManager } from './agent/agent-manager'
+import { createSdkQueryFn } from './agent/sdk-query'
 
 // Absolute principle (CLAUDE.md): Main is the real backend. PTY/session state
 // lives here and must outlive renderer windows.
@@ -12,6 +14,9 @@ import { spawn as nodePtySpawn } from './pty/node-pty'
 const ptyManager = new PtyManager((file, args, opts) =>
   nodePtySpawn(file, args, { ...opts, env: opts.env as { [k: string]: string } })
 )
+
+// Agent 채널(M3) — Main 소유. 세션마다 실제 SDK queryFn 을 새로 만든다.
+const agentManager = new ClaudeAgentManager(() => createSdkQueryFn())
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -41,7 +46,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   initDatabase()
-  registerIpcHandlers(ptyManager)
+  registerIpcHandlers(ptyManager, agentManager)
   createWindow()
 
   app.on('activate', () => {
@@ -58,5 +63,6 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
   // PTY를 먼저 정리해 node-pty conpty helper의 WER 0x800700e8를 피한다.
   ptyManager.disposeAll()
+  agentManager.disposeAll()
   closeDatabase()
 })

@@ -1,7 +1,12 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type {
+  AgentEventPayload,
+  AgentSessionInfo,
+  AgentStartInput,
   CreateProjectInput,
   DevConsoleApi,
+  PermissionDecision,
+  PermissionRequest,
   StartSessionInput,
   SessionInfo,
   TerminalDataPayload
@@ -33,6 +38,29 @@ const api: DevConsoleApi = {
       const listener = (_e: IpcRendererEvent, info: SessionInfo): void => cb(info)
       ipcRenderer.on('session:statusChange', listener)
       return () => ipcRenderer.removeListener('session:statusChange', listener)
+    }
+  },
+  agents: {
+    start: (input: AgentStartInput) => ipcRenderer.invoke('agents:start', input),
+    send: (sessionId: string, text: string) => ipcRenderer.invoke('agents:send', { sessionId, text }),
+    respondPermission: (sessionId: string, requestId: string, decision: PermissionDecision) =>
+      ipcRenderer.invoke('agents:respondPermission', { sessionId, requestId, decision }),
+    interrupt: (sessionId: string) => ipcRenderer.invoke('agents:interrupt', { sessionId }),
+    stop: (sessionId: string) => ipcRenderer.invoke('agents:stop', { sessionId }),
+    onEvent: (cb: (payload: AgentEventPayload) => void) => {
+      const listener = (_e: IpcRendererEvent, payload: AgentEventPayload): void => cb(payload)
+      ipcRenderer.on('agent:event', listener)
+      return () => ipcRenderer.removeListener('agent:event', listener)
+    },
+    onStatusChange: (cb: (info: AgentSessionInfo) => void) => {
+      const listener = (_e: IpcRendererEvent, info: AgentSessionInfo): void => cb(info)
+      ipcRenderer.on('agent:statusChange', listener)
+      return () => ipcRenderer.removeListener('agent:statusChange', listener)
+    },
+    onPermissionRequest: (cb: (req: PermissionRequest) => void) => {
+      const listener = (_e: IpcRendererEvent, req: PermissionRequest): void => cb(req)
+      ipcRenderer.on('agent:permissionRequest', listener)
+      return () => ipcRenderer.removeListener('agent:permissionRequest', listener)
     }
   },
   dialog: {

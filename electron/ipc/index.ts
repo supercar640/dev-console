@@ -1,12 +1,13 @@
 import { registerProjectHandlers } from './projects'
 import { registerSessionHandlers } from './sessions'
 import { registerDialogHandlers } from './dialog'
+import { registerAgentHandlers } from './agents'
 import type { PtyManager } from '../pty/pty-manager'
+import type { ClaudeAgentManager } from '../agent/agent-manager'
 
-// Single entry point for all IPC handler registration (spec 부록 A).
-// Grows per milestone: agents, sessions, files, schedules, ...
-export function registerIpcHandlers(ptyManager: PtyManager): void {
+export function registerIpcHandlers(ptyManager: PtyManager, agentManager: ClaudeAgentManager): void {
   registerProjectHandlers()
   registerSessionHandlers(ptyManager)
   registerDialogHandlers()
+  registerAgentHandlers(agentManager)
 }

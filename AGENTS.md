@@ -35,21 +35,20 @@ LLM CLI(Claude Code 등)를 함대처럼 외부에서 관제하는 **Windows 네
 
 ## 핵심 결정 요약 (전문: `plan/dev-console-direction.md`)
 
-1. **stream-json 베팅 유지(조건부).** Agent 채널 = headless `stream-json`, Terminal 채널 = node-pty 인터랙티브. 두 채널 동시 활성 금지.
-2. **`CliAdapter`는 stream-json을 전제하지 않는다.** "각 어댑터가 자기 이벤트 소스를 제공"으로 추상화. stream-json은 ClaudeCodeAdapter의 구현 디테일.
+1. **stream-json 베팅 유지(조건부) — 단, `ClaudeCodeAdapter`는 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 위에 구축.** Agent 채널 = headless(SDK가 stream-json 래핑), Terminal 채널 = node-pty 인터랙티브. 두 채널 동시 활성 금지. (근거: M3 게이트 PoC에서 stream-json 직접 파싱은 권한 요청을 못 받음 = 버그 #34046 재현. SDK `canUseTool`로 해소. 전문: `plan/dev-console-direction.md` §2-bis.)
+2. **`CliAdapter`는 stream-json을 전제하지 않는다.** "각 어댑터가 자기 이벤트 소스를 제공"으로 추상화. stream-json/SDK는 ClaudeCodeAdapter의 구현 디테일.
 3. **사람이 보는 터미널 출력을 정규식으로 긁어 상태 추론 금지.** (agent-orchestrator가 15커밋 갈아넣고 폐기한 길)
 4. **Terminal 채널 상태감지 = Claude Code 훅 + `~/.claude/projects/*.jsonl`.**
 
-## ⚠️ 검증 게이트 — M3 착수 전 필수
+## ✅ 검증 게이트 — 통과(2026-05-30)
 
-`claude --input-format stream-json --output-format stream-json` 이 **다중 턴 인터랙티브 제어**(stdin으로 후속 메시지 주입→응답 반복)를 지원하는지 30분 PoC로 확정한 뒤 M3 진입.
-M1·M2는 이 결과와 무관하게 선행 가능.
+`claude --input-format stream-json --output-format stream-json` 의 **다중 턴 인터랙티브 제어**(stdin 후속 주입→응답 반복) = ✅ PASS(동일 session_id·맥락 유지). 단, **권한 요청은 직접 파싱으로 못 받음**(버그 #34046) → Agent 채널은 공식 Agent SDK + `canUseTool`로 구현하기로 확정. 상세·근거·증명: `plan/dev-console-direction.md` §2-bis.
 
 ## 마일스톤 (현재: M2 완료 — M3 대기)
 
 - **M1 골격** ✅ 완료(검증). Electron+React+TS 보일러플레이트, IPC 채널 구조, SQLite 초기화/마이그레이션, 빈 대시보드(프로젝트 카드 리스트 + 추가/삭제 CRUD 왕복).
 - **M2 단일 세션** ✅ 완료(검증 2026-05-30). node-pty(동봉 prebuilt·in-process, Main 소유) + xterm.js 왕복, 링버퍼 스크롤백 replay, graceful teardown. 한글·색상·리사이즈·출력보존·claude 실행·폴더 선택 다이얼로그 확인. 상세: `plan/dev-console-m2-design.md`·`dev-console-m2-plan.md`. (데몬/named pipe/orphan 레지스트리는 인프로세스 설계라 미차용.)
-- **M3 stream-json 통합** ← 다음. (⚠️ 착수 전 검증 게이트: `claude --input-format stream-json` 다중턴 PoC.)
+- **M3 stream-json 통합** ← 진행중. 게이트 ✅ 통과(2026-05-30). Agent 채널 = 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 기반(`canUseTool`로 권한/질문 처리). 남은 작업: 이벤트 파서(부록 B 매핑)·질문대기 감지·네이티브 알림·듀얼채널 토글.
 - M4 멀티 세션 + 영속화
 - M5 자동화 (체크리스트, 오늘 작업 시작, 개발일지)
 - M6 스케줄러 + 복구

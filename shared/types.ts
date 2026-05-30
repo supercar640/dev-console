@@ -36,6 +36,42 @@ export type AgentEvent =
   | { type: 'error'; message: string; recoverable: boolean }
   | { type: 'session_end'; reason: string }
 
+/** M3 Agent 채널 — 세션 시작 입력. */
+export interface AgentStartInput {
+  projectId: string
+  cwd: string
+  model?: string
+  /** 시작과 동시에 보낼 첫 사용자 메시지(없으면 send로 첫 턴 시작). */
+  firstMessage?: string
+}
+
+/** M3 Agent 세션 런타임 정보 (lifecycle = SessionStatus). */
+export interface AgentSessionInfo {
+  sessionId: string
+  status: SessionStatus
+}
+
+/** waiting_user 상태에서 UI로 올라가는 승인/질문 요청. */
+export interface PermissionRequest {
+  requestId: string
+  sessionId: string
+  toolName: string
+  input: unknown
+  /** AskUserQuestion = 'question', 그 외 도구 = 'tool'. */
+  kind: 'tool' | 'question'
+}
+
+/** UI가 돌려주는 권한 결정. */
+export type PermissionDecision =
+  | { behavior: 'allow' }
+  | { behavior: 'deny'; message?: string }
+
+/** Main → Renderer: 정규화 이벤트 1건. */
+export interface AgentEventPayload {
+  sessionId: string
+  event: AgentEvent
+}
+
 /** The API surface exposed to the renderer through contextBridge (`window.api`).
  *  Mirrors the IPC channels in spec 부록 A. Grows per milestone. */
 export interface DevConsoleApi {
@@ -54,6 +90,17 @@ export interface DevConsoleApi {
     /** 구독 등록. 반환된 함수를 호출하면 해제. */
     onTerminalData(cb: (sessionId: string, data: Uint8Array) => void): () => void
     onStatusChange(cb: (info: SessionInfo) => void): () => void
+  }
+  agents: {
+    start(input: AgentStartInput): Promise<AgentSessionInfo>
+    send(sessionId: string, text: string): Promise<void>
+    respondPermission(sessionId: string, requestId: string, decision: PermissionDecision): Promise<void>
+    interrupt(sessionId: string): Promise<void>
+    stop(sessionId: string): Promise<void>
+    /** 구독 등록. 반환 함수 호출 시 해제. */
+    onEvent(cb: (payload: AgentEventPayload) => void): () => void
+    onStatusChange(cb: (info: AgentSessionInfo) => void): () => void
+    onPermissionRequest(cb: (req: PermissionRequest) => void): () => void
   }
   dialog: {
     /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */
