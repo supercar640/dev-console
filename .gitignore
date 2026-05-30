@@ -41,3 +41,6 @@ Thumbs.db
 
 # HITL (human-in-the-loop, 로컬 작업 파일 — 커밋 안 함)
 hitl/
+
+# Superpowers 브레인스토밍 시각 companion 산출물 (로컬)
+.superpowers/
