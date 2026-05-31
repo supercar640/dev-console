@@ -4,19 +4,21 @@ import type { Project } from '@shared/types'
 
 export default function Terminal({
   project,
-  onBack
+  onBack,
+  embedded = false
 }: {
   project: Project
   onBack: () => void
+  embedded?: boolean
 }): React.JSX.Element {
   const { sessionId, status, command, setCommand, start, stop } = useSessionStore()
 
   return (
     <section className="terminal">
       <div className="terminal__bar">
-        <button className="btn" onClick={onBack}>
-          ← 대시보드
-        </button>
+        {!embedded && (
+          <button className="btn" onClick={onBack}>← 대시보드</button>
+        )}
         <input
           className="input terminal__cmd"
           value={command}

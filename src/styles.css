@@ -1,17 +1,23 @@
-/* M1 minimal theme — nods to agent-orchestrator "Warm Terminal" (warm charcoal,
-   cream text, periwinkle accent). Will be replaced by a token system later. */
+/* M3 theme — Coolors palette (design/dev-consol-colors.png). Deep navy base,
+   white text, ice = primary actions, emerald = tool/attention accent, red = danger.
+   Source design: design/dev-console-m3.pen (design/dev-console-m3-agent.png). */
 :root {
-  --bg-base: #121110;
-  --bg-surface: #1a1918;
-  --bg-elevated: #222120;
-  --text-primary: #f0ece8;
-  --text-secondary: #a8a29e;
-  --text-tertiary: #78716c;
-  --border: rgba(255, 240, 220, 0.1);
-  --border-strong: rgba(255, 240, 220, 0.18);
-  --accent: #8b9cf7;
-  --accent-hover: #a3b1fa;
-  --danger: #ef4444;
+  --bg-base: #153243;
+  --bg-surface: #1b3d4f;
+  --bg-elevated: #244c60;
+  --text-primary: #ffffff;
+  --text-secondary: #93b8c2;
+  --text-tertiary: #5f8694;
+  --border: #2e5568;
+  --border-strong: #3a6175;
+  --accent: #ccfbfe;          /* ice — primary actions (user msg, active tab, approve, send) */
+  --accent-hover: #e3fdff;
+  --accent-ink: #153243;      /* navy text on ice/accent surfaces */
+  --emerald: #00a676;         /* tool marker + attention/permission accent */
+  --emerald-soft: rgba(0, 166, 118, 0.15);
+  --danger: #f8333c;          /* deny / error */
+  --danger-hover: #ff4a52;
+  --danger-soft: rgba(248, 51, 60, 0.15);
 
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
   --font-mono: 'Cascadia Code', 'Consolas', ui-monospace, monospace;
@@ -94,7 +100,7 @@ body {
 }
 
 .btn:hover {
-  background: #2a2928;
+  background: var(--border);
 }
 
 .btn:disabled {
@@ -104,21 +110,31 @@ body {
 
 .btn--primary {
   background: var(--accent);
-  color: #121110;
+  color: var(--accent-ink);
 }
 
 .btn--primary:hover {
   background: var(--accent-hover);
 }
 
+.btn--danger {
+  background: var(--danger);
+  color: #ffffff;
+  border-color: var(--danger);
+}
+
+.btn--danger:hover {
+  background: var(--danger-hover);
+}
+
 .btn--ghost-danger {
   background: transparent;
-  border-color: rgba(239, 68, 68, 0.4);
+  border-color: rgba(248, 51, 60, 0.45);
   color: var(--danger);
 }
 
 .btn--ghost-danger:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--danger-soft);
   border-color: var(--danger);
 }
 
@@ -172,7 +188,7 @@ body {
 
 .alert--error {
   border-color: var(--danger);
-  background: rgba(239, 68, 68, 0.06);
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -208,13 +224,13 @@ body {
   word-break: break-all;
 }
 
-/* M2 터미널 */
 .card__actions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
 
+/* M2 터미널 */
 .terminal {
   display: flex;
   flex-direction: column;
@@ -245,7 +261,222 @@ body {
 .terminal-host {
   flex: 1;
   min-height: 0;
-  background: #121110;
+  background: var(--bg-base);
   padding: 6px;
   border: 1px solid var(--border);
+}
+
+/* M3 — Agent 채널 UI (design/dev-console-m3.pen) */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 10px;
+}
+
+.workspace__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.workspace__name {
+  font-weight: 600;
+}
+
+.workspace__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.tab {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 6px 14px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab--on {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.agent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+
+.agent__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.agent__spacer {
+  flex: 1;
+}
+
+.agent__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agent__input {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.badge--running {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+}
+
+.badge--waiting_user {
+  background: var(--emerald-soft);
+  color: #ffffff;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.badge--idle {
+  background: rgba(147, 184, 194, 0.15);
+  color: var(--text-secondary);
+}
+
+.badge--crashed {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.badge--done {
+  background: var(--emerald-soft);
+  color: var(--emerald);
+}
+
+.badge--none {
+  color: var(--text-tertiary);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.ev {
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: 90%;
+}
+
+.ev--user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 8px 13px;
+  border-radius: 10px;
+}
+
+.ev--assistant {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  padding: 8px 13px;
+  border-radius: 10px;
+}
+
+.ev--tool,
+.ev--tool-result {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ev__arrow {
+  color: var(--emerald);
+}
+
+.ev--tool code {
+  color: var(--text-tertiary);
+}
+
+.ev--usage {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.ev--error {
+  color: var(--danger);
+}
+
+.ev--system {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 11px;
+}
+
+.perm-card {
+  border-left: 3px solid var(--emerald);
+  background: var(--bg-elevated);
+  padding: 12px 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 560px;
+}
+
+.perm-card__title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.perm-card__detail {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-base);
+  padding: 7px 10px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+.perm-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
 }

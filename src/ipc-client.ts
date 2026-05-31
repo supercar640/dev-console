@@ -40,5 +40,7 @@ export const agentsApi = {
   onEvent: (cb: (payload: AgentEventPayload) => void): (() => void) => window.api.agents.onEvent(cb),
   onStatusChange: (cb: (info: AgentSessionInfo) => void): (() => void) => window.api.agents.onStatusChange(cb),
   onPermissionRequest: (cb: (req: PermissionRequest) => void): (() => void) =>
-    window.api.agents.onPermissionRequest(cb)
+    window.api.agents.onPermissionRequest(cb),
+  onFocusSession: (cb: (sessionId: string) => void): (() => void) =>
+    window.api.agents.onFocusSession(cb)
 }
