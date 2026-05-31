@@ -7,6 +7,6 @@ export default defineConfig({
   resolve: { alias: { '@shared': resolve(__dirname, 'shared') } },
   test: {
     environment: 'node',
-    include: ['electron/**/*.test.ts', 'shared/**/*.test.ts']
+    include: ['electron/**/*.test.ts', 'shared/**/*.test.ts', 'src/**/*.test.ts']
   }
 })

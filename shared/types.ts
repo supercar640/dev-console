@@ -101,6 +101,7 @@ export interface DevConsoleApi {
     onEvent(cb: (payload: AgentEventPayload) => void): () => void
     onStatusChange(cb: (info: AgentSessionInfo) => void): () => void
     onPermissionRequest(cb: (req: PermissionRequest) => void): () => void
+    onFocusSession(cb: (sessionId: string) => void): () => void
   }
   dialog: {
     /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */

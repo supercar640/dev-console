@@ -61,6 +61,11 @@ const api: DevConsoleApi = {
       const listener = (_e: IpcRendererEvent, req: PermissionRequest): void => cb(req)
       ipcRenderer.on('agent:permissionRequest', listener)
       return () => ipcRenderer.removeListener('agent:permissionRequest', listener)
+    },
+    onFocusSession: (cb: (sessionId: string) => void) => {
+      const listener = (_e: IpcRendererEvent, sessionId: string): void => cb(sessionId)
+      ipcRenderer.on('agent:focusSession', listener)
+      return () => ipcRenderer.removeListener('agent:focusSession', listener)
     }
   },
   dialog: {
