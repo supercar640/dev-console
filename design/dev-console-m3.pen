@@ -3,15 +3,658 @@
   "children": [
     {
       "type": "frame",
-      "id": "bi8Au",
+      "id": "q0Rrp",
       "x": 0,
       "y": 0,
-      "name": "Frame",
+      "name": "Agent Workspace",
       "clip": true,
-      "width": 800,
-      "height": 600,
-      "fill": "#FFFFFF",
-      "layout": "none"
+      "width": 1280,
+      "height": 832,
+      "fill": "$bg-base",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "H5XerK",
+          "name": "Topbar",
+          "width": "fill_container",
+          "fill": "$bg-surface",
+          "stroke": "$border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "gap": 12,
+          "padding": [
+            12,
+            20
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "AcDUw",
+              "name": "Brand",
+              "fill": "$text-primary",
+              "content": "개발 상황판",
+              "fontFamily": "$font-sans",
+              "fontSize": 15,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "u1HfUG",
+              "name": "Spacer",
+              "width": "fill_container",
+              "height": 1
+            },
+            {
+              "type": "text",
+              "id": "n8guS",
+              "name": "Tag",
+              "fill": "$text-tertiary",
+              "content": "DEV CONSOLE · M3",
+              "fontFamily": "$font-mono",
+              "fontSize": 10,
+              "fontWeight": "normal",
+              "letterSpacing": 1
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "C4yfmq",
+          "name": "Workspace Bar",
+          "width": "fill_container",
+          "fill": "$bg-base",
+          "gap": 12,
+          "padding": [
+            12,
+            20
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "MRu6k",
+              "name": "Back",
+              "fill": "$bg-elevated",
+              "cornerRadius": 6,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "padding": [
+                6,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "k7wU2",
+                  "name": "BackLabel",
+                  "fill": "$text-secondary",
+                  "content": "← 대시보드",
+                  "fontFamily": "$font-sans",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "pw6Do",
+              "name": "Project",
+              "fill": "$text-primary",
+              "content": "my-app",
+              "fontFamily": "$font-sans",
+              "fontSize": 14,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "I5PVw",
+              "name": "Spacer2",
+              "width": "fill_container",
+              "height": 1
+            },
+            {
+              "type": "frame",
+              "id": "d5da8K",
+              "name": "Tabs",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "IFuWb",
+                  "name": "Tab Agent",
+                  "fill": "$accent",
+                  "cornerRadius": 6,
+                  "padding": [
+                    6,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "BHVrg",
+                      "name": "TabAgentLabel",
+                      "fill": "$bg-base",
+                      "content": "🤖 에이전트",
+                      "fontFamily": "$font-sans",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ArxFE",
+                  "name": "Tab Terminal",
+                  "fill": "$bg-elevated",
+                  "cornerRadius": 6,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    6,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PbCHU",
+                      "name": "TabTerminalLabel",
+                      "fill": "$text-secondary",
+                      "content": "⌨️ 터미널",
+                      "fontFamily": "$font-sans",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "XgaTH",
+              "name": "Status Badge",
+              "fill": "$emerald-soft",
+              "cornerRadius": 12,
+              "padding": [
+                4,
+                12
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fPdZp",
+                  "name": "BadgeLabel",
+                  "fill": "$text-primary",
+                  "content": "⏸ 사람 대기",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tnp3F",
+          "name": "Agent Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$bg-base",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": [
+            12,
+            20,
+            16,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "zHiNl",
+              "name": "Log",
+              "clip": true,
+              "width": "fill_container",
+              "height": "fill_container",
+              "fill": "$bg-surface",
+              "cornerRadius": 10,
+              "stroke": "$border",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 12,
+              "padding": 18,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "fha5r",
+                  "name": "User Row",
+                  "width": "fill_container",
+                  "justifyContent": "end",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "K5HCa2",
+                      "name": "User Bubble",
+                      "width": 520,
+                      "fill": "$accent",
+                      "cornerRadius": 10,
+                      "layout": "vertical",
+                      "padding": [
+                        9,
+                        13
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "C8UTw7",
+                          "name": "User Text",
+                          "fill": "$bg-base",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "README랑 git log 확인해서 poc.txt에 요약 3줄 적어줘",
+                          "lineHeight": 1.45,
+                          "fontFamily": "$font-sans",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lWp32",
+                  "name": "Asst Bubble 1",
+                  "width": 720,
+                  "fill": "$bg-elevated",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": [
+                    9,
+                    13
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "z9alB",
+                      "name": "Asst Text 1",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "확인했습니다. README와 최근 커밋을 먼저 읽겠습니다.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-sans",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TIFsx",
+                  "name": "Tool 1",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "AJP6i",
+                      "name": "T1Arrow",
+                      "fill": "$emerald",
+                      "content": "▸",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "xYkpT",
+                      "name": "T1Name",
+                      "fill": "$text-secondary",
+                      "content": "Bash",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "C34lQF",
+                      "name": "T1Cmd",
+                      "fill": "$text-tertiary",
+                      "content": "git log --oneline -5",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "PqPML",
+                  "name": "Tool 2",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IOadi",
+                      "name": "T2Arrow",
+                      "fill": "$emerald",
+                      "content": "▸",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "OQhz1",
+                      "name": "T2Name",
+                      "fill": "$text-secondary",
+                      "content": "Read",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "I3sBs",
+                      "name": "T2Cmd",
+                      "fill": "$text-tertiary",
+                      "content": "README.md",
+                      "fontFamily": "$font-mono",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Vklkr",
+                  "name": "Asst Bubble 2",
+                  "width": 720,
+                  "fill": "$bg-elevated",
+                  "cornerRadius": 10,
+                  "layout": "vertical",
+                  "padding": [
+                    9,
+                    13
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WivwX",
+                      "name": "Asst Text 2",
+                      "fill": "$text-primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "요약을 정리해 poc.txt 에 쓰겠습니다.",
+                      "lineHeight": 1.45,
+                      "fontFamily": "$font-sans",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "A6xxY",
+                  "name": "Perm Row",
+                  "width": "fill_container",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "faq2W",
+                      "name": "Permission Card",
+                      "width": 560,
+                      "fill": "$bg-elevated",
+                      "cornerRadius": 8,
+                      "stroke": "$emerald",
+                      "strokeWidth": {
+                        "left": 3
+                      },
+                      "layout": "vertical",
+                      "gap": 9,
+                      "padding": 13,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "BKV22",
+                          "name": "Perm Title",
+                          "fill": "$text-primary",
+                          "content": "⚠️ 승인 필요 — Write",
+                          "fontFamily": "$font-sans",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "oFifJ",
+                          "name": "Perm Detail",
+                          "width": "fill_container",
+                          "fill": "$bg-base",
+                          "cornerRadius": 6,
+                          "padding": [
+                            7,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dlPvi",
+                              "name": "Perm Detail Text",
+                              "fill": "$text-secondary",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "poc.txt 에 요약 3줄 쓰기",
+                              "lineHeight": 1.4,
+                              "fontFamily": "$font-mono",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "IGmli",
+                          "name": "Perm Actions",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "AO98r",
+                              "name": "Approve",
+                              "fill": "$accent",
+                              "cornerRadius": 6,
+                              "padding": [
+                                7,
+                                18
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "T2QcM",
+                                  "name": "Approve Label",
+                                  "fill": "$bg-base",
+                                  "content": "승인",
+                                  "fontFamily": "$font-sans",
+                                  "fontSize": 13,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "tRaf5",
+                              "name": "Deny",
+                              "fill": "$coral",
+                              "cornerRadius": 6,
+                              "stroke": "$coral",
+                              "padding": [
+                                7,
+                                18
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PuJbU",
+                                  "name": "Deny Label",
+                                  "fill": "$text-primary",
+                                  "content": "거부",
+                                  "fontFamily": "$font-sans",
+                                  "fontSize": 13,
+                                  "fontWeight": "600"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "onrJs",
+                  "name": "Usage",
+                  "fill": "$text-tertiary",
+                  "content": "↑ 2,498  ↓ 5 tokens · opus-4.8",
+                  "fontFamily": "$font-mono",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Q9zWC",
+              "name": "Input Bar",
+              "width": "fill_container",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "YvQ1M",
+                  "name": "Field",
+                  "width": "fill_container",
+                  "fill": "$bg-surface",
+                  "cornerRadius": 8,
+                  "stroke": "$border",
+                  "strokeWidth": 1,
+                  "padding": [
+                    11,
+                    14
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "gqErE",
+                      "name": "Placeholder",
+                      "fill": "$text-tertiary",
+                      "content": "에이전트에게 지시…",
+                      "fontFamily": "$font-sans",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "kzl0t",
+                  "name": "Send",
+                  "fill": "$accent",
+                  "cornerRadius": 8,
+                  "padding": [
+                    11,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bBwX5",
+                      "name": "SendLabel",
+                      "fill": "$bg-base",
+                      "content": "전송",
+                      "fontFamily": "$font-sans",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
-  ]
+  ],
+  "variables": {
+    "bg-base": {
+      "type": "color",
+      "value": "#153243"
+    },
+    "bg-elevated": {
+      "type": "color",
+      "value": "#244C60"
+    },
+    "bg-surface": {
+      "type": "color",
+      "value": "#1B3D4F"
+    },
+    "border": {
+      "type": "color",
+      "value": "#2E5568"
+    },
+    "coral": {
+      "type": "color",
+      "value": "#F8333C"
+    },
+    "coral-soft": {
+      "type": "color",
+      "value": "#F8333C26"
+    },
+    "emerald": {
+      "type": "color",
+      "value": "#00A676"
+    },
+    "emerald-soft": {
+      "type": "color",
+      "value": "#00A67626"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "font-sans": {
+      "type": "string",
+      "value": "Noto Sans KR"
+    },
+    "pink": {
+      "type": "color",
+      "value": "#F0B7B3"
+    },
+    "pink-soft": {
+      "type": "color",
+      "value": "#F0B7B31F"
+    },
+    "text-primary": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#93B8C2"
+    },
+    "text-tertiary": {
+      "type": "color",
+      "value": "#5F8694"
+    },
+    "accent": {
+      "type": "color",
+      "value": "#CCFBFE"
+    }
+  }
 }

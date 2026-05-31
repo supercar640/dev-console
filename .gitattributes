@@ -1,0 +1,10 @@
+# Pencil 디자인 소스는 암호화된 바이너리 — 텍스트/EOL 변환을 끄고 byte-exact 로 저장한다.
+# (autocrlf 가 CRLF 변환으로 .pen 을 손상시키는 것을 방지.)
+*.pen binary
+
+# 이미지/문서 에셋 — 바이너리, EOL 변환 금지.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.pdf binary
