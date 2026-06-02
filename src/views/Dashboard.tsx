@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
-import type { CreateProjectInput, Project } from '@shared/types'
+import type { CreateProjectInput } from '@shared/types'
 import { useProjectsStore } from '@/stores/projects'
+import { useWorkspacesStore } from '@/stores/workspaces'
 import { dialogApi } from '@/ipc-client'
 
-export default function Dashboard({
-  onOpenTerminal
-}: {
-  onOpenTerminal: (p: Project) => void
-}): React.JSX.Element {
+export default function Dashboard(): React.JSX.Element {
   const { projects, loading, error, load, add, remove } = useProjectsStore()
+  const open = useWorkspacesStore((s) => s.open)
   const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
@@ -51,8 +49,8 @@ export default function Dashboard({
                 <div className="card__path">{p.workspacePath}</div>
               </div>
               <div className="card__actions">
-                <button className="btn" onClick={() => onOpenTerminal(p)}>
-                  터미널 열기
+                <button className="btn" onClick={() => open(p)}>
+                  열기
                 </button>
                 <button className="btn btn--ghost-danger" onClick={() => void remove(p.id)}>
                   삭제

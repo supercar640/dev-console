@@ -1,38 +1,39 @@
 import { create } from 'zustand'
 import { sessionsApi } from '@/ipc-client'
-import type { SessionInfo } from '@shared/types'
+import {
+  type MultiTerminalState, type TerminalState, initialMultiTerminalState, terminalStateOf,
+  setCommandForProject, startTerminalForProject, stopTerminalForProject, routeTerminalStatus
+} from './session-multi'
 
-interface SessionState {
-  sessionId: string | null
-  status: SessionInfo['status'] | null
-  command: string
-  projectId: string | null
-  setCommand: (c: string) => void
+interface SessionStore extends MultiTerminalState {
+  setCommand: (projectId: string, command: string) => void
   start: (projectId: string, cwd: string) => Promise<void>
-  stop: () => Promise<void>
+  stop: (projectId: string) => Promise<void>
 }
 
-export const useSessionStore = create<SessionState>((set, get) => {
-  // 1회: Main의 상태 변경(예: PTY 종료)을 UI에 반영.
-  sessionsApi.onStatusChange((info) => {
-    if (info.sessionId === get().sessionId) set({ status: info.status })
-  })
+export const useSessionStore = create<SessionStore>((set, get) => {
+  // 1회: Main 상태 변경(PTY 종료 등)을 소속 프로젝트로 라우팅.
+  sessionsApi.onStatusChange((info) => set((s) => routeTerminalStatus(s, info)))
   return {
-    sessionId: null,
-    status: null,
-    // Windows 기본 셸. claude는 이 셸 안에서 입력(M2 비목표 — pwsh는 이 머신에 미설치).
-    command: 'powershell',
-    projectId: null,
-    setCommand: (c) => set({ command: c }),
+    ...initialMultiTerminalState(),
+    setCommand: (projectId, command) => set((s) => setCommandForProject(s, projectId, command)),
     start: async (projectId, cwd) => {
-      const info = await sessionsApi.start({ projectId, command: get().command, args: [], cwd })
-      set({ sessionId: info.sessionId, status: info.status, projectId })
+      // 같은 프로젝트에 살아있는 세션이 있으면 먼저 정지(재시작 — Main은 추가만 하므로 누수 방지).
+      const prev = terminalStateOf(get(), projectId)
+      if (prev.sessionId) await sessionsApi.stop(prev.sessionId)
+      const info = await sessionsApi.start({ projectId, command: prev.command, args: [], cwd })
+      set((s) => startTerminalForProject(s, projectId, info.sessionId))
     },
-    stop: async () => {
-      const id = get().sessionId
+    stop: async (projectId) => {
+      const id = terminalStateOf(get(), projectId).sessionId
       if (!id) return
       await sessionsApi.stop(id)
-      set({ sessionId: null, status: null })
+      set((s) => stopTerminalForProject(s, projectId))
     }
   }
 })
+
+const EMPTY_TERMINAL_STATE: TerminalState = { sessionId: null, status: null, command: 'powershell' }
+export function useTerminalProject(projectId: string): TerminalState {
+  return useSessionStore((s) => s.byProject[projectId]) ?? EMPTY_TERMINAL_STATE
+}

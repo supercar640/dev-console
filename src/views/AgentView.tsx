@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Project, SessionStatus } from '@shared/types'
-import { useAgentStore } from '@/stores/agent'
+import { useAgentStore, useAgentProject } from '@/stores/agent'
 import AgentEventItem from '@/components/AgentEventItem'
 import PermissionCard from '@/components/PermissionCard'
 
 export default function AgentView({ project }: { project: Project }): React.JSX.Element {
-  const { sessionId, status, log, pending, focusTick, start, send, approve, deny, interrupt, stop } = useAgentStore()
+  const { sessionId, status, log, pending } = useAgentProject(project.id)
+  const focusTick = useAgentStore((s) => s.focusTick)
+  const start = useAgentStore((s) => s.start)
+  const send = useAgentStore((s) => s.send)
+  const approve = useAgentStore((s) => s.approve)
+  const deny = useAgentStore((s) => s.deny)
+  const interrupt = useAgentStore((s) => s.interrupt)
+  const stop = useAgentStore((s) => s.stop)
   const [draft, setDraft] = useState('')
   const logRef = useRef<HTMLDivElement>(null)
 
@@ -19,7 +26,7 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
     if (!text) return
     setDraft('')
     if (!sessionId) void start(project.id, project.workspacePath, text)
-    else void send(text)
+    else void send(project.id, text)
   }
 
   return (
@@ -27,8 +34,8 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
       <div className="agent__bar">
         <span className={`badge badge--${status ?? 'none'}`}>{statusLabel(status)}</span>
         <span className="agent__spacer" />
-        <button className="btn" onClick={() => void interrupt()} disabled={status !== 'running'}>중단</button>
-        <button className="btn btn--ghost-danger" onClick={() => void stop()} disabled={!sessionId}>정지</button>
+        <button className="btn" onClick={() => void interrupt(project.id)} disabled={status !== 'running'}>중단</button>
+        <button className="btn btn--ghost-danger" onClick={() => void stop(project.id)} disabled={!sessionId}>정지</button>
       </div>
 
       <div className="agent__log" ref={logRef}>
@@ -36,8 +43,8 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
         {log.map((item) => <AgentEventItem key={item.id} item={item} />)}
         {pending.map((req) => (
           <PermissionCard key={req.requestId} req={req}
-            onApprove={() => void approve(req.requestId)}
-            onDeny={() => void deny(req.requestId, '사용자가 거부함')} />
+            onApprove={() => void approve(project.id, req.requestId)}
+            onDeny={() => void deny(project.id, req.requestId, '사용자가 거부함')} />
         ))}
       </div>
 

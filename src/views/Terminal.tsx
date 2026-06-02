@@ -1,28 +1,20 @@
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore, useTerminalProject } from '@/stores/session'
 import XtermPane from '@/components/XtermPane'
 import type { Project } from '@shared/types'
 
-export default function Terminal({
-  project,
-  onBack,
-  embedded = false
-}: {
-  project: Project
-  onBack: () => void
-  embedded?: boolean
-}): React.JSX.Element {
-  const { sessionId, status, command, setCommand, start, stop } = useSessionStore()
+export default function Terminal({ project }: { project: Project }): React.JSX.Element {
+  const { sessionId, status, command } = useTerminalProject(project.id)
+  const setCommand = useSessionStore((s) => s.setCommand)
+  const start = useSessionStore((s) => s.start)
+  const stop = useSessionStore((s) => s.stop)
 
   return (
     <section className="terminal">
       <div className="terminal__bar">
-        {!embedded && (
-          <button className="btn" onClick={onBack}>← 대시보드</button>
-        )}
         <input
           className="input terminal__cmd"
           value={command}
-          onChange={(e) => setCommand(e.target.value)}
+          onChange={(e) => setCommand(project.id, e.target.value)}
           placeholder="실행할 명령 (예: powershell, claude)"
         />
         <button
@@ -31,7 +23,7 @@ export default function Terminal({
         >
           {sessionId ? '재시작' : '시작'}
         </button>
-        <button className="btn btn--ghost-danger" onClick={() => void stop()} disabled={!sessionId}>
+        <button className="btn btn--ghost-danger" onClick={() => void stop(project.id)} disabled={!sessionId}>
           종료
         </button>
         <span className="terminal__status">{statusLabel(status)}</span>

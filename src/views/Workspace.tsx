@@ -7,15 +7,13 @@ import { useSessionStore } from '@/stores/session'
 
 type Channel = 'agent' | 'terminal'
 
-export default function Workspace({
-  project, onBack
-}: {
-  project: Project
-  onBack: () => void
-}): React.JSX.Element {
+export default function Workspace({ project }: { project: Project }): React.JSX.Element {
   const [channel, setChannel] = useState<Channel>('agent')
-  const agentRunning = useAgentStore((s) => s.sessionId !== null && s.status !== 'done' && s.status !== 'crashed')
-  const terminalRunning = useSessionStore((s) => s.sessionId !== null)
+  const agentRunning = useAgentStore((s) => {
+    const ps = s.byProject[project.id]
+    return !!ps?.sessionId && ps.status !== 'done' && ps.status !== 'crashed'
+  })
+  const terminalRunning = useSessionStore((s) => !!s.byProject[project.id]?.sessionId)
 
   // 듀얼채널: 보기 전환은 자유. 다른 채널이 실행 중이면 경고(차단 아님 — 확인 시 전환).
   const switchTo = (next: Channel): void => {
@@ -35,7 +33,6 @@ export default function Workspace({
   return (
     <section className="workspace">
       <div className="workspace__bar">
-        <button className="btn" onClick={onBack}>← 대시보드</button>
         <span className="workspace__name">{project.name}</span>
         <div className="tabs">
           <button className={`tab ${channel === 'agent' ? 'tab--on' : ''}`} onClick={() => switchTo('agent')}>🤖 에이전트</button>
@@ -43,7 +40,7 @@ export default function Workspace({
         </div>
       </div>
       <div className="workspace__body">
-        {channel === 'agent' ? <AgentView project={project} /> : <Terminal project={project} onBack={onBack} embedded />}
+        {channel === 'agent' ? <AgentView project={project} /> : <Terminal project={project} />}
       </div>
     </section>
   )
