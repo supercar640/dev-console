@@ -35,7 +35,7 @@ LLM CLI(Claude Code 등)를 함대처럼 외부에서 관제하는 **Windows 네
 
 ## 핵심 결정 요약 (전문: `plan/dev-console-direction.md`)
 
-1. **stream-json 베팅 유지(조건부) — 단, `ClaudeCodeAdapter`는 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 위에 구축.** Agent 채널 = headless(SDK가 stream-json 래핑), Terminal 채널 = node-pty 인터랙티브. 두 채널 동시 실행은 **"경고 후 허용"**(파일충돌 경고 confirm 후 둘 다 실행 — 소유자 결정 2026-05-31, 이전엔 "동시 금지"). (근거: M3 게이트 PoC에서 stream-json 직접 파싱은 권한 요청을 못 받음 = 버그 #34046 재현. SDK `canUseTool`로 해소. 전문: `plan/dev-console-direction.md` §2-bis.)
+1. **stream-json 베팅 유지(조건부) — 단, `ClaudeCodeAdapter`는 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 위에 구축.** Agent 채널 = headless(SDK가 stream-json 래핑), Terminal 채널 = node-pty 인터랙티브. 두 채널 동시 실행은 **"허용(경고 없음)"**(보기 전환·동시 시작 모두 확인창 없이 즉시 — 소유자 결정 2026-06-04. 이력: 동시 금지 → 경고 후 허용(05-31) → 경고 제거(06-04). 이유: 터미널 여는 사용자는 충돌 위험을 알고 여는 것). (근거: M3 게이트 PoC에서 stream-json 직접 파싱은 권한 요청을 못 받음 = 버그 #34046 재현. SDK `canUseTool`로 해소. 전문: `plan/dev-console-direction.md` §2-bis.)
 2. **`CliAdapter`는 stream-json을 전제하지 않는다.** "각 어댑터가 자기 이벤트 소스를 제공"으로 추상화. stream-json/SDK는 ClaudeCodeAdapter의 구현 디테일.
 3. **사람이 보는 터미널 출력을 정규식으로 긁어 상태 추론 금지.** (agent-orchestrator가 15커밋 갈아넣고 폐기한 길)
 4. **Terminal 채널 상태감지 = Claude Code 훅 + `~/.claude/projects/*.jsonl`.**
