@@ -192,42 +192,98 @@ body {
   color: var(--danger);
 }
 
-.cards {
+/* 대시보드 관제 보드 — 세로 라인 리스트 (AGENTS.md UI 사양: 지휘자 관점) */
+.board {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.card {
+.board__row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 11px 14px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+.board__row:hover { background: var(--bg-elevated); }
+
+/* 사람 개입 대기 — 경고 강조(최상단 정렬은 정렬 로직이 담당) */
+.board__row--waiting {
+  border-left-color: var(--emerald);
+  background: var(--emerald-soft);
 }
 
-.card__name {
+.board__name {
   font-weight: 500;
-  margin-bottom: 4px;
-}
-
-.card__path {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-tertiary);
-  word-break: break-all;
-}
-
-.card__actions {
-  display: flex;
-  gap: 8px;
   flex-shrink: 0;
+  min-width: 120px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board__mid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.board__current {
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.board__idle { color: var(--text-tertiary); }
+
+.board__waiting {
+  color: var(--emerald);
+  font-weight: 600;
+  white-space: nowrap;
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.board__actions { display: flex; gap: 8px; flex-shrink: 0; }
+/* 액션은 평소 숨김 → 줄 호버 시 노출(관제 화면을 깔끔히) */
+.board__actions { opacity: 0; transition: opacity 0.12s ease-out; }
+.board__row:hover .board__actions { opacity: 1; }
+
+/* 진척도 막대 */
+.progress {
+  position: relative;
+  flex: 0 0 180px;
+  height: 18px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.progress__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--emerald);
+  opacity: 0.45;
+}
+.progress__label {
+  position: relative;
+  display: block;
+  text-align: center;
+  line-height: 18px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-primary);
 }
 
 /* M2 터미널 */
