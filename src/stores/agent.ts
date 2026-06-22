@@ -4,7 +4,8 @@ import { useWorkspacesStore } from './workspaces'
 import {
   type MultiAgentState, initialMultiAgentState, agentStateOf,
   startForProject, appendUserForProject, removePendingForProject,
-  routeEvent, routeStatus, routePermission, projectOfSession
+  routeEvent, routeStatus, routePermission, projectOfSession,
+  hydrateProject, resetForProject
 } from './agent-multi'
 import { type AgentState, type LogItem, initialAgentState } from './agent-reducer'
 
@@ -16,6 +17,8 @@ interface AgentStore extends MultiAgentState {
   deny: (projectId: string, requestId: string, message?: string) => Promise<void>
   interrupt: (projectId: string) => Promise<void>
   stop: (projectId: string) => Promise<void>
+  loadHistory: () => Promise<void>
+  reset: (projectId: string) => void
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => {
@@ -61,6 +64,14 @@ export const useAgentStore = create<AgentStore>((set, get) => {
     stop: async (projectId) => {
       const id = agentStateOf(get(), projectId).sessionId
       if (id) await agentsApi.stop(id)
+    },
+    loadHistory: async () => {
+      const sessions = await agentsApi.loadHistory()
+      // 누산기는 MultiAgentState 슬라이스로 명시(AgentStore는 이를 확장 → 안전).
+      set((s) => sessions.reduce<MultiAgentState>((acc, r) => hydrateProject(acc, r), s))
+    },
+    reset: (projectId) => {
+      set((s) => resetForProject(s, projectId))
     }
   }
 })
