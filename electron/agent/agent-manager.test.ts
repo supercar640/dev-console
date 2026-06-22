@@ -57,6 +57,12 @@ describe('ClaudeAgentManager', () => {
     expect(seen).toContain(second.sessionId)
   })
 
+  it('세션 id는 재시작 충돌을 피하기 위해 UUID 형식이다', () => {
+    const mgr = new ClaudeAgentManager(() => fakeQuery)
+    const info = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
+    expect(info.sessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
+  })
+
   it('알 수 없는 sessionId로의 send/respond는 무시(throw 안 함)', () => {
     const mgr = new ClaudeAgentManager(() => fakeQuery)
     mgr.start({ projectId: 'p1', cwd: 'C:\\' })
