@@ -1,11 +1,12 @@
 ﻿// 멀티 프로젝트 Agent 상태 라우팅(순수). 프로젝트별 AgentState를 보유하고,
 // 들어오는 이벤트(sessionId)를 sessionId→projectId 인덱스로 소속 프로젝트에 라우팅한다.
 // 단일 프로젝트 전이는 검증된 agent-reducer를 그대로 재사용.
-import type { AgentEvent, AgentSessionInfo, PermissionRequest } from '@shared/types'
+import type { AgentEvent, AgentSessionInfo, PermissionRequest, RestoredSession } from '@shared/types'
 import {
   type AgentState, initialAgentState, startSession,
   appendEvent, appendUser, setStatus, addPending, removePending
 } from './agent-reducer'
+import { restoreAgentState } from './agent-restore'
 
 export interface MultiAgentState {
   byProject: Record<string, AgentState>
@@ -70,4 +71,23 @@ export function routePermission(s: MultiAgentState, req: PermissionRequest): Mul
 /** sessionId의 소속 projectId(없으면 null). focusSession 점프에 사용. */
 export function projectOfSession(s: MultiAgentState, sessionId: string): string | null {
   return s.sessionIndex[sessionId] ?? null
+}
+
+/** 복원 세션 주입: 프로젝트 상태를 읽기 전용 복원본으로 채우고 sessionId 인덱스 등록. */
+export function hydrateProject(s: MultiAgentState, restored: RestoredSession): MultiAgentState {
+  return {
+    byProject: { ...s.byProject, [restored.projectId]: restoreAgentState(restored) },
+    sessionIndex: { ...s.sessionIndex, [restored.sessionId]: restored.projectId }
+  }
+}
+
+/** 읽기 전용 복원본을 비우고 새 작업 준비(라이브·빈 상태). 이전 세션 인덱스 제거. */
+export function resetForProject(s: MultiAgentState, projectId: string): MultiAgentState {
+  const prev = s.byProject[projectId]
+  const sessionIndex = { ...s.sessionIndex }
+  if (prev?.sessionId) delete sessionIndex[prev.sessionId]
+  return {
+    byProject: { ...s.byProject, [projectId]: initialAgentState() },
+    sessionIndex
+  }
 }

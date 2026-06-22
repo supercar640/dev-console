@@ -1,9 +1,10 @@
 ﻿import { describe, it, expect } from 'vitest'
 import {
   initialMultiAgentState, agentStateOf, startForProject, appendUserForProject,
-  removePendingForProject, routeEvent, routeStatus, routePermission, projectOfSession
+  removePendingForProject, routeEvent, routeStatus, routePermission, projectOfSession,
+  hydrateProject, resetForProject
 } from './agent-multi'
-import type { PermissionRequest } from '@shared/types'
+import type { PermissionRequest, RestoredSession } from '@shared/types'
 
 const perm = (requestId: string, sessionId: string): PermissionRequest =>
   ({ requestId, sessionId, toolName: 'Write', input: {}, kind: 'tool' })
@@ -64,5 +65,33 @@ describe('agent-multi', () => {
 
   it('agentStateOf는 미지 프로젝트에 초기 상태를 돌려준다', () => {
     expect(agentStateOf(initialMultiAgentState(), 'none')).toMatchObject({ sessionId: null, status: null, log: [] })
+  })
+})
+
+const restored: RestoredSession = {
+  projectId: 'p1',
+  sessionId: 's-uuid',
+  status: 'done',
+  events: [{ type: 'message', role: 'assistant', text: 'hi' }]
+}
+
+describe('agent-multi 복원/리셋', () => {
+  it('hydrateProject는 읽기 전용 복원본을 채우고 인덱스를 등록한다', () => {
+    const s = hydrateProject(initialMultiAgentState(), restored)
+    const st = agentStateOf(s, 'p1')
+    expect(st.live).toBe(false)
+    expect(st.status).toBe('done')
+    expect(st.log).toHaveLength(1)
+    expect(s.sessionIndex['s-uuid']).toBe('p1')
+  })
+
+  it('resetForProject는 라이브 빈 상태로 비우고 이전 sessionId 인덱스를 제거한다', () => {
+    const hydrated = hydrateProject(initialMultiAgentState(), restored)
+    const reset = resetForProject(hydrated, 'p1')
+    const st = agentStateOf(reset, 'p1')
+    expect(st.live).toBe(true)
+    expect(st.sessionId).toBeNull()
+    expect(st.log).toHaveLength(0)
+    expect(reset.sessionIndex['s-uuid']).toBeUndefined()
   })
 })
