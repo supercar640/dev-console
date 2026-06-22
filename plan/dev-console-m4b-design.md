@@ -91,9 +91,9 @@ will-quit → agentManager.disposeAll() → 각 세션 stop → recordSessionEnd
 ## 책임 경계 (파일)
 
 **신규 (순수/격리 → TDD):**
-- `electron/agent/event-codec.ts` — `AgentEvent ↔ {type, payload_json}` 직렬화/역직렬화(순수). 라운드트립 보장.
-- `electron/db/agent-store.ts` — DB 읽기/쓰기 어댑터. `recordSessionStart` / `recordEvent` / `recordSessionEnd` / `loadHistory`. better-sqlite3 직접(동기). in-memory DB로 통합 테스트.
-- `src/stores/agent-restore.ts` — `events: AgentEvent[] → AgentState`(replay, 순수). 기존 `agent-reducer`(`startSession`+`appendEvent`) 재사용 + `live=false`/status 세팅.
+- `electron/agent/event-codec.ts` — Main측 순수 로직(better-sqlite3 미import → node 단위테스트 가능): `encodeEvent`/`decodeEvent`(`AgentEvent ↔ payload_json` 라운드트립) + `resolveRestoredStatus`(미종료 세션 → `crashed` 강등 규칙).
+- `electron/db/agent-store.ts` — DB 읽기/쓰기 어댑터(better-sqlite3 동기). `recordSessionStart` / `recordEvent` / `recordSessionEnd` / `loadHistory`. **단위 테스트 없음** — better-sqlite3가 Electron ABI 전용이라 node vitest에서 로드 불가(기존 `projects.ts` 등 DB 코드와 동일 패턴). 검증은 수동 스모크. 위험 로직은 위 `event-codec`로 빼서 테스트.
+- `src/stores/agent-restore.ts` — `events: AgentEvent[] → AgentState`(replay, 순수, 렌더러측이라 node 테스트 가능). 기존 `agent-reducer`(`startSession`+`appendEvent`) 재사용 + `live=false`/status 세팅.
 
 **수정:**
 - `electron/agent/agent-manager.ts` — 세션 id `randomUUID()`로. (그 외 변경 최소)
@@ -111,11 +111,13 @@ will-quit → agentManager.disposeAll() → 각 세션 stop → recordSessionEnd
 
 ## 테스트 전략 (위험한 곳만 TDD)
 
-1. **`event-codec`** — 모든 `AgentEvent` variant를 직렬화→역직렬화하면 원본과 동일(라운드트립). 깨진 payload_json 방어.
-2. **`agent-store`** (in-memory better-sqlite3) — 세션 시작→이벤트 N건→종료 저장 후 `loadHistory`가 같은 이벤트를 순서대로 반환. FK(cli_agents/sessions/events) 충족. 프로젝트 2개일 때 각자 마지막 세션만. 미종료 세션 = crashed 강등.
-3. **`agent-restore`** — events 재생 결과 `log`가 라이브로 흘렸을 때와 동일(`appendEvent` 누적과 일치) + `live=false` + status 매핑. → `computeProjectProgress`가 복원 상태에서 올바른 %/current 산출.
+better-sqlite3는 Electron ABI 전용이라 **node vitest에서 DB를 직접 열 수 없다.** 따라서 DB 왕복(SQL)은 수동 스모크로 검증하고, 위험한 순수 로직만 자동 테스트한다.
 
-라이브 통합(실제 claude로 저장→재시작→복원)은 수동 스모크로.
+1. **`event-codec`** (node) — 모든 `AgentEvent` variant를 직렬화→역직렬화하면 원본과 동일(라운드트립). 깨진 payload_json → null 방어. `resolveRestoredStatus`: 미종료(`ended_at` 없음)+살아있던 상태 → `crashed`, 정상 종료는 보존.
+2. **`agent-restore`** (node) — events 재생 결과 `log`가 라이브로 흘렸을 때와 동일(`appendEvent` 누적과 일치) + `live=false` + status 매핑. → `computeProjectProgress`가 복원 상태에서 올바른 %/current 산출.
+3. **`agent-reducer`/`agent-multi`** (node) — `live` 필드 추가 후 기존 전이 불변식 유지 + `hydrateProject`가 byProject/sessionIndex를 올바로 채움.
+
+DB 적재·조회(`agent-store`)와 라이브 통합(실제 claude로 저장→재시작→복원)은 **수동 스모크**로 검증(아래).
 
 ## 수동 스모크 (구현 후)
 
