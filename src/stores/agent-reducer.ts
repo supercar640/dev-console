@@ -11,14 +11,16 @@ export interface AgentState {
   log: LogItem[]
   pending: PermissionRequest[]
   nextId: number
+  /** 라이브 세션=true, 복원(읽기 전용) 세션=false. */
+  live: boolean
 }
 
 export function initialAgentState(): AgentState {
-  return { sessionId: null, status: null, log: [], pending: [], nextId: 0 }
+  return { sessionId: null, status: null, log: [], pending: [], nextId: 0, live: true }
 }
 
 export function startSession(_s: AgentState, sessionId: string): AgentState {
-  return { sessionId, status: 'running', log: [], pending: [], nextId: 0 }
+  return { sessionId, status: 'running', log: [], pending: [], nextId: 0, live: true }
 }
 
 export function appendEvent(s: AgentState, event: AgentEvent): AgentState {
