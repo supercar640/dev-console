@@ -51,5 +51,8 @@ export function registerAgentHandlers(
     agentManager.interrupt(sessionId))
   ipcMain.handle('agents:stop', (_e, { sessionId }: { sessionId: string }): void =>
     agentManager.stop(sessionId))
-  ipcMain.handle('agents:loadHistory', (): RestoredSession[] => agentStore.loadHistory())
+  ipcMain.handle('agents:loadHistory', (): RestoredSession[] => {
+    // 복원 읽기도 best-effort — 실패해도 빈 목록으로 정상 부팅(로깅만).
+    try { return agentStore.loadHistory() } catch (err) { console.error('[agent-store]', err); return [] }
+  })
 }
