@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Notification } from 'electron'
 import { join } from 'node:path'
-import { initDatabase, closeDatabase } from './db'
+import { initDatabase, closeDatabase, getDatabase } from './db'
+import { AgentStore } from './db/agent-store'
 import { registerIpcHandlers } from './ipc'
 import { PtyManager } from './pty/pty-manager'
 import { spawn as nodePtySpawn } from './pty/node-pty'
@@ -67,7 +68,8 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   initDatabase()
-  registerIpcHandlers(ptyManager, agentManager, notifier)
+  const agentStore = new AgentStore(getDatabase())
+  registerIpcHandlers(ptyManager, agentManager, notifier, agentStore)
   createWindow()
 
   app.on('activate', () => {

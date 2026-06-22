@@ -66,7 +66,8 @@ const api: DevConsoleApi = {
       const listener = (_e: IpcRendererEvent, sessionId: string): void => cb(sessionId)
       ipcRenderer.on('agent:focusSession', listener)
       return () => ipcRenderer.removeListener('agent:focusSession', listener)
-    }
+    },
+    loadHistory: () => ipcRenderer.invoke('agents:loadHistory')
   },
   dialog: {
     openDirectory: () => ipcRenderer.invoke('dialog:openDirectory')

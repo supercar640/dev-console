@@ -1,6 +1,7 @@
 import type {
   CreateProjectInput, Project, StartSessionInput, SessionInfo,
-  AgentStartInput, AgentSessionInfo, AgentEventPayload, PermissionDecision, PermissionRequest
+  AgentStartInput, AgentSessionInfo, AgentEventPayload, PermissionDecision, PermissionRequest,
+  RestoredSession
 } from '@shared/types'
 
 // Thin typed wrapper over the contextBridge surface (window.api).
@@ -42,5 +43,6 @@ export const agentsApi = {
   onPermissionRequest: (cb: (req: PermissionRequest) => void): (() => void) =>
     window.api.agents.onPermissionRequest(cb),
   onFocusSession: (cb: (sessionId: string) => void): (() => void) =>
-    window.api.agents.onFocusSession(cb)
+    window.api.agents.onFocusSession(cb),
+  loadHistory: (): Promise<RestoredSession[]> => window.api.agents.loadHistory()
 }

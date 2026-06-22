@@ -110,6 +110,8 @@ export interface DevConsoleApi {
     onStatusChange(cb: (info: AgentSessionInfo) => void): () => void
     onPermissionRequest(cb: (req: PermissionRequest) => void): () => void
     onFocusSession(cb: (sessionId: string) => void): () => void
+    /** M4b — 재시작 시 프로젝트별 마지막 세션을 복원용으로 일괄 조회. */
+    loadHistory(): Promise<RestoredSession[]>
   }
   dialog: {
     /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */
