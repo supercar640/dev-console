@@ -51,6 +51,14 @@ export interface AgentSessionInfo {
   status: SessionStatus
 }
 
+/** M4b — 재시작 시 복원되는 "프로젝트별 마지막 세션 1건"(읽기 전용). */
+export interface RestoredSession {
+  projectId: string
+  sessionId: string
+  status: SessionStatus
+  events: AgentEvent[]
+}
+
 /** waiting_user 상태에서 UI로 올라가는 승인/질문 요청. */
 export interface PermissionRequest {
   requestId: string
