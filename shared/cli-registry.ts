@@ -8,9 +8,13 @@ export interface CliDef {
   label: string
   /** 실행 명령(PtyManager로 그대로 전달). */
   command: string
-  /** 기본 인자(현재 프리셋은 모두 빈 배열; sessions.start로 전달). */
+  /** 기본 인자(sessions.start로 전달). */
   args: string[]
 }
+
+// Windows 주: node-pty(CreateProcess)는 PATH의 .exe만 이름으로 실행한다. npm 전역 CLI는
+// .cmd 배치 스크립트(예: codex.cmd/gemini.cmd)라 이름으로 직접 못 띄운다 → cmd.exe /c 로 감싼다.
+// claude는 진짜 .exe(claude.exe)라 이름 그대로 실행된다. powershell은 셸(resolveCommand가 .exe 처리).
 
 /** 프리셋에 없는 명령을 직접 입력하는 특수 선택지 id. 레지스트리 항목이 아니다. */
 export const CUSTOM_CLI_ID = 'custom'
@@ -20,8 +24,8 @@ export const DEFAULT_CLI_ID = 'powershell'
 
 export const CLI_REGISTRY: CliDef[] = [
   { id: 'claude',     label: 'Claude Code', command: 'claude',     args: [] },
-  { id: 'codex',      label: 'Codex',       command: 'codex',      args: [] },
-  { id: 'gemini',     label: 'Gemini',      command: 'gemini',     args: [] },
+  { id: 'codex',      label: 'Codex',       command: 'cmd.exe',    args: ['/c', 'codex'] },
+  { id: 'gemini',     label: 'Gemini',      command: 'cmd.exe',    args: ['/c', 'gemini'] },
   { id: 'powershell', label: 'powershell',  command: 'powershell', args: [] }
 ]
 

@@ -17,8 +17,12 @@ describe('cli-registry', () => {
     expect(CLI_REGISTRY.some((d) => d.id === DEFAULT_CLI_ID)).toBe(true)
   })
 
-  it('resolveCli: 프리셋은 레지스트리의 command/args를 돌려준다', () => {
-    expect(resolveCli('codex', '')).toEqual({ command: 'codex', args: [] })
+  it('resolveCli: 프리셋(.exe)은 레지스트리의 command/args를 돌려준다', () => {
+    expect(resolveCli('claude', '')).toEqual({ command: 'claude', args: [] })
+  })
+
+  it('resolveCli: .cmd 프리셋은 cmd.exe /c 로 감싼 command/args를 돌려준다', () => {
+    expect(resolveCli('codex', '')).toEqual({ command: 'cmd.exe', args: ['/c', 'codex'] })
   })
 
   it('resolveCli: custom은 입력 명령을 trim해 돌려준다', () => {
