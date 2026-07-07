@@ -55,12 +55,12 @@ LLM CLI(Claude Code 등)를 함대처럼 외부에서 관제하는 **Windows 네
 
 `claude --input-format stream-json --output-format stream-json` 의 **다중 턴 인터랙티브 제어**(stdin 후속 주입→응답 반복) = ✅ PASS(동일 session_id·맥락 유지). 단, **권한 요청은 직접 파싱으로 못 받음**(버그 #34046) → Agent 채널은 공식 Agent SDK + `canUseTool`로 구현하기로 확정. 상세·근거·증명: `plan/dev-console-direction.md` §2-bis.
 
-## 마일스톤 (현재: M2 완료 — M3 대기)
+## 마일스톤 (현재: M4a·M4b 완료 — main 미병합, 브랜치 `m4a-multisession`)
 
 - **M1 골격** ✅ 완료(검증). Electron+React+TS 보일러플레이트, IPC 채널 구조, SQLite 초기화/마이그레이션, 빈 대시보드(프로젝트 카드 리스트 + 추가/삭제 CRUD 왕복).
 - **M2 단일 세션** ✅ 완료(검증 2026-05-30). node-pty(동봉 prebuilt·in-process, Main 소유) + xterm.js 왕복, 링버퍼 스크롤백 replay, graceful teardown. 한글·색상·리사이즈·출력보존·claude 실행·폴더 선택 다이얼로그 확인. 상세: `plan/dev-console-m2-design.md`·`dev-console-m2-plan.md`. (데몬/named pipe/orphan 레지스트리는 인프로세스 설계라 미차용.)
-- **M3 stream-json 통합** ← 진행중. 게이트 ✅ 통과(2026-05-30). Agent 채널 = 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 기반(`canUseTool`로 권한/질문 처리). 남은 작업: 이벤트 파서(부록 B 매핑)·질문대기 감지·네이티브 알림·듀얼채널 토글.
-- M4 멀티 세션 + 영속화
+- **M3 stream-json 통합** ✅ 완료(main 병합, PR#2~5). Agent 채널 = 공식 Agent SDK(`@anthropic-ai/claude-agent-sdk`) 기반(`canUseTool`로 권한/질문 처리). 이벤트 파서·질문대기 감지·네이티브 알림·듀얼채널 완료.
+- **M4 멀티 세션 + 영속화** (분해 M4a/M4b/M4c) — **M4a(멀티세션 코어)** ✅ 구현·검증(매니저 단일→Map, `sessionId→projectId` 라우팅, 사이드바 2-pane). **M4b(이벤트 SQLite 영속화·지난 세션 복원)** ✅ 구현 + **수동 스모크 6/6 PASS(2026-07-08)**. **M4c(파일참조)** 미착수. 부가: **대시보드(관제 보드)** ✅, **다중 LLM CLI 선택 1단계**(터미널 드롭다운 Claude/Codex/Gemini/powershell/직접입력) ✅. ⚠️ 전부 브랜치 `m4a-multisession`에 있고 **main 미병합**.
 - M5 자동화 (체크리스트, 오늘 작업 시작, 개발일지)
 - M6 스케줄러 + 복구
 - M7 멀티 에이전트 오케스트레이션
