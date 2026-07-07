@@ -37,7 +37,13 @@ export const useAgentStore = create<AgentStore>((set, get) => {
     focusTick: 0,
     start: async (projectId, cwd, firstMessage) => {
       const info = await agentsApi.start({ projectId, cwd, firstMessage })
-      set((s) => startForProject(s, projectId, info.sessionId))
+      set((s) => {
+        const started = startForProject(s, projectId, info.sessionId)
+        // 첫 지시도 로그에 남긴다(후속 send와 동일 — 안 그러면 첫 메시지만 화면에 안 뜸).
+        return firstMessage && firstMessage.trim()
+          ? appendUserForProject(started, projectId, firstMessage)
+          : started
+      })
     },
     send: async (projectId, text) => {
       const id = agentStateOf(get(), projectId).sessionId
