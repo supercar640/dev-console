@@ -1,6 +1,6 @@
 ﻿import { describe, it, expect } from 'vitest'
 import {
-  initialMultiTerminalState, terminalStateOf, setCommandForProject,
+  initialMultiTerminalState, terminalStateOf, setCliForProject, setCustomCommandForProject,
   startTerminalForProject, stopTerminalForProject, routeTerminalStatus
 } from './session-multi'
 
@@ -25,18 +25,23 @@ describe('session-multi', () => {
     expect(s1).toBe(s0)
   })
 
-  it('setCommandForProject는 프로젝트별 명령을 보관(기본 powershell)', () => {
+  it('setCliForProject는 프로젝트별 cliId를 보관(기본 powershell)', () => {
     let s = initialMultiTerminalState()
-    expect(terminalStateOf(s, 'p1').command).toBe('powershell')
-    s = setCommandForProject(s, 'p1', 'claude')
-    expect(terminalStateOf(s, 'p1').command).toBe('claude')
-    expect(terminalStateOf(s, 'p2').command).toBe('powershell')
+    expect(terminalStateOf(s, 'p1').cliId).toBe('powershell')
+    s = setCliForProject(s, 'p1', 'codex')
+    expect(terminalStateOf(s, 'p1').cliId).toBe('codex')
+    expect(terminalStateOf(s, 'p2').cliId).toBe('powershell')
   })
 
-  it('stopTerminalForProject는 세션을 비우되 command는 유지한다', () => {
+  it('setCustomCommandForProject는 customCommand를 보관한다', () => {
+    let s = setCustomCommandForProject(initialMultiTerminalState(), 'p1', 'bash')
+    expect(terminalStateOf(s, 'p1').customCommand).toBe('bash')
+  })
+
+  it('stopTerminalForProject는 세션을 비우되 cliId/customCommand는 유지한다', () => {
     let s = startTerminalForProject(initialMultiTerminalState(), 'p1', 's1')
-    s = setCommandForProject(s, 'p1', 'claude')
+    s = setCliForProject(s, 'p1', 'codex')
     s = stopTerminalForProject(s, 'p1')
-    expect(terminalStateOf(s, 'p1')).toMatchObject({ sessionId: null, status: null, command: 'claude' })
+    expect(terminalStateOf(s, 'p1')).toMatchObject({ sessionId: null, status: null, cliId: 'codex', customCommand: '' })
   })
 })

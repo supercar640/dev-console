@@ -1,12 +1,14 @@
-﻿// 멀티 프로젝트 터미널(PTY) 상태 라우팅(순수). 프로젝트별 sessionId/status/command.
+// 멀티 프로젝트 터미널(PTY) 상태 라우팅(순수). 프로젝트별 sessionId/status/cliId/customCommand.
 import type { SessionInfo } from '@shared/types'
+import { DEFAULT_CLI_ID } from '@shared/cli-registry'
 
 export type TerminalStatus = SessionInfo['status'] // 'running' | 'exited'
 
 export interface TerminalState {
   sessionId: string | null
   status: TerminalStatus | null
-  command: string
+  cliId: string          // CLI_REGISTRY id | CUSTOM_CLI_ID
+  customCommand: string   // cliId === CUSTOM_CLI_ID 일 때만 사용
 }
 
 export interface MultiTerminalState {
@@ -14,44 +16,47 @@ export interface MultiTerminalState {
   sessionIndex: Record<string, string> // sessionId → projectId
 }
 
-const DEFAULT_COMMAND = 'powershell'
-
 export function initialMultiTerminalState(): MultiTerminalState {
   return { byProject: {}, sessionIndex: {} }
 }
 
 export function terminalStateOf(s: MultiTerminalState, projectId: string): TerminalState {
-  return s.byProject[projectId] ?? { sessionId: null, status: null, command: DEFAULT_COMMAND }
+  return s.byProject[projectId] ?? { sessionId: null, status: null, cliId: DEFAULT_CLI_ID, customCommand: '' }
 }
 
 function withProject(s: MultiTerminalState, projectId: string, next: TerminalState): MultiTerminalState {
   return { ...s, byProject: { ...s.byProject, [projectId]: next } }
 }
 
-export function setCommandForProject(s: MultiTerminalState, projectId: string, command: string): MultiTerminalState {
-  return withProject(s, projectId, { ...terminalStateOf(s, projectId), command })
+export function setCliForProject(s: MultiTerminalState, projectId: string, cliId: string): MultiTerminalState {
+  return withProject(s, projectId, { ...terminalStateOf(s, projectId), cliId })
 }
 
-/** 세션 시작 등록: running + 인덱스(이전 세션 인덱스 제거). command는 유지. */
+export function setCustomCommandForProject(s: MultiTerminalState, projectId: string, customCommand: string): MultiTerminalState {
+  return withProject(s, projectId, { ...terminalStateOf(s, projectId), customCommand })
+}
+
+/** 세션 시작 등록: running + 인덱스(이전 세션 인덱스 제거). cli 선택은 유지. */
 export function startTerminalForProject(s: MultiTerminalState, projectId: string, sessionId: string): MultiTerminalState {
   const prev = s.byProject[projectId]
   const sessionIndex = { ...s.sessionIndex }
   if (prev?.sessionId) delete sessionIndex[prev.sessionId]
   sessionIndex[sessionId] = projectId
-  const command = prev?.command ?? DEFAULT_COMMAND
+  const cliId = prev?.cliId ?? DEFAULT_CLI_ID
+  const customCommand = prev?.customCommand ?? ''
   return {
-    byProject: { ...s.byProject, [projectId]: { sessionId, status: 'running', command } },
+    byProject: { ...s.byProject, [projectId]: { sessionId, status: 'running', cliId, customCommand } },
     sessionIndex
   }
 }
 
-/** 명시적 정지(렌더러): 세션/상태 비움, command 유지, 인덱스 제거. */
+/** 명시적 정지(렌더러): 세션/상태 비움, cli 선택 유지, 인덱스 제거. */
 export function stopTerminalForProject(s: MultiTerminalState, projectId: string): MultiTerminalState {
   const prev = terminalStateOf(s, projectId)
   const sessionIndex = { ...s.sessionIndex }
   if (prev.sessionId) delete sessionIndex[prev.sessionId]
   return {
-    byProject: { ...s.byProject, [projectId]: { sessionId: null, status: null, command: prev.command } },
+    byProject: { ...s.byProject, [projectId]: { sessionId: null, status: null, cliId: prev.cliId, customCommand: prev.customCommand } },
     sessionIndex
   }
 }
