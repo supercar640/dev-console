@@ -45,7 +45,7 @@ export default function Terminal({ project }: { project: Project }): React.JSX.E
       {sessionId ? (
         <XtermPane key={sessionId} sessionId={sessionId} />
       ) : (
-        <div className="empty">"시작"을 눌러 {project.name}에서 터미널을 여세요.</div>
+        <div className="empty">“시작”을 눌러 {project.name}에서 터미널을 여세요.</div>
       )}
     </section>
   )
