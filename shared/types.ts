@@ -51,6 +51,14 @@ export interface AgentSessionInfo {
   status: SessionStatus
 }
 
+/** M4b — 재시작 시 복원되는 "프로젝트별 마지막 세션 1건"(읽기 전용). */
+export interface RestoredSession {
+  projectId: string
+  sessionId: string
+  status: SessionStatus
+  events: AgentEvent[]
+}
+
 /** waiting_user 상태에서 UI로 올라가는 승인/질문 요청. */
 export interface PermissionRequest {
   requestId: string
@@ -102,6 +110,8 @@ export interface DevConsoleApi {
     onStatusChange(cb: (info: AgentSessionInfo) => void): () => void
     onPermissionRequest(cb: (req: PermissionRequest) => void): () => void
     onFocusSession(cb: (sessionId: string) => void): () => void
+    /** M4b — 재시작 시 프로젝트별 마지막 세션을 복원용으로 일괄 조회. */
+    loadHistory(): Promise<RestoredSession[]>
   }
   dialog: {
     /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */

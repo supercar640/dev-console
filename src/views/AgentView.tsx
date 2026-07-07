@@ -1,11 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Project, SessionStatus } from '@shared/types'
-import { useAgentStore } from '@/stores/agent'
+import { useAgentStore, useAgentProject } from '@/stores/agent'
 import AgentEventItem from '@/components/AgentEventItem'
 import PermissionCard from '@/components/PermissionCard'
 
 export default function AgentView({ project }: { project: Project }): React.JSX.Element {
-  const { sessionId, status, log, pending, focusTick, start, send, approve, deny, interrupt, stop } = useAgentStore()
+  const { sessionId, status, log, pending, live } = useAgentProject(project.id)
+  const focusTick = useAgentStore((s) => s.focusTick)
+  const start = useAgentStore((s) => s.start)
+  const send = useAgentStore((s) => s.send)
+  const approve = useAgentStore((s) => s.approve)
+  const deny = useAgentStore((s) => s.deny)
+  const interrupt = useAgentStore((s) => s.interrupt)
+  const stop = useAgentStore((s) => s.stop)
+  const reset = useAgentStore((s) => s.reset)
   const [draft, setDraft] = useState('')
   const logRef = useRef<HTMLDivElement>(null)
 
@@ -19,33 +27,42 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
     if (!text) return
     setDraft('')
     if (!sessionId) void start(project.id, project.workspacePath, text)
-    else void send(text)
+    else void send(project.id, text)
   }
 
   return (
     <div className="agent">
+      {!live && (
+        <div className="agent__readonly">
+          <span>지난 작업 · 읽기 전용</span>
+          <button className="btn btn--primary" onClick={() => reset(project.id)}>▶ 새로 시작</button>
+        </div>
+      )}
+
       <div className="agent__bar">
         <span className={`badge badge--${status ?? 'none'}`}>{statusLabel(status)}</span>
         <span className="agent__spacer" />
-        <button className="btn" onClick={() => void interrupt()} disabled={status !== 'running'}>중단</button>
-        <button className="btn btn--ghost-danger" onClick={() => void stop()} disabled={!sessionId}>정지</button>
+        <button className="btn" onClick={() => void interrupt(project.id)} disabled={!live || status !== 'running'}>중단</button>
+        <button className="btn btn--ghost-danger" onClick={() => void stop(project.id)} disabled={!live || !sessionId}>정지</button>
       </div>
 
       <div className="agent__log" ref={logRef}>
         {log.length === 0 && <div className="empty">아래에 지시를 입력해 에이전트를 시작하세요.</div>}
         {log.map((item) => <AgentEventItem key={item.id} item={item} />)}
-        {pending.map((req) => (
+        {live && pending.map((req) => (
           <PermissionCard key={req.requestId} req={req}
-            onApprove={() => void approve(req.requestId)}
-            onDeny={() => void deny(req.requestId, '사용자가 거부함')} />
+            onApprove={() => void approve(project.id, req.requestId)}
+            onDeny={() => void deny(project.id, req.requestId, '사용자가 거부함')} />
         ))}
       </div>
 
       <div className="agent__input">
-        <input className="input" value={draft} placeholder="에이전트에게 지시…"
+        <input className="input" value={draft}
+          placeholder={live ? '에이전트에게 지시…' : '지난 작업(읽기 전용) — ▶ 새로 시작으로 이어가기'}
+          disabled={!live}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') submit() }} />
-        <button className="btn btn--primary" onClick={submit}>{sessionId ? '전송' : '시작'}</button>
+        <button className="btn btn--primary" onClick={submit} disabled={!live}>{sessionId ? '전송' : '시작'}</button>
       </div>
     </div>
   )

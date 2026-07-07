@@ -110,14 +110,65 @@ describe('PtyManager', () => {
     expect(mgr.status(info.sessionId)).toBeNull()
   })
 
-  it('start 재호출 시 이전 세션을 정리(교체)한다', () => {
-    const first = makeFakePty(1)
-    const second = makeFakePty(2)
+  // --- M4a 멀티 세션 ---
+  function multiManager(): { mgr: PtyManager; a: FakePty; b: FakePty } {
+    const a = makeFakePty(1)
+    const b = makeFakePty(2)
     let n = 0
-    const sf = vi.fn(() => (n++ === 0 ? first : second) as never)
-    const mgr = new PtyManager(sf as SpawnFn)
-    mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
-    mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
-    expect(first.killed).toBe(true)
+    const sf = vi.fn(() => (n++ === 0 ? a : b) as never)
+    return { mgr: new PtyManager(sf as SpawnFn), a, b }
+  }
+
+  it('start를 두 번 호출하면 두 세션이 모두 살아있다(교체하지 않음)', () => {
+    const { mgr, a, b } = multiManager()
+    const first = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    const second = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    expect(first.sessionId).not.toBe(second.sessionId)
+    expect(a.killed).toBe(false)
+    expect(b.killed).toBe(false)
+    expect(mgr.status(first.sessionId)?.status).toBe('running')
+    expect(mgr.status(second.sessionId)?.status).toBe('running')
+  })
+
+  it('send는 sessionId로 해당 세션에만 전달된다', () => {
+    const { mgr, a, b } = multiManager()
+    const first = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    const second = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    mgr.send(first.sessionId, 'A\r')
+    mgr.send(second.sessionId, 'B\r')
+    expect(a.written).toEqual(['A\r'])
+    expect(b.written).toEqual(['B\r'])
+  })
+
+  it('한 세션 stop이 다른 세션에 영향을 주지 않는다', () => {
+    const { mgr, a, b } = multiManager()
+    const first = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    const second = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    mgr.stop(first.sessionId)
+    expect(a.killed).toBe(true)
+    expect(b.killed).toBe(false)
+    expect(mgr.status(first.sessionId)).toBeNull()
+    expect(mgr.status(second.sessionId)?.status).toBe('running')
+  })
+
+  it('getScrollback은 sessionId별로 독립적이다', () => {
+    const { mgr, a, b } = multiManager()
+    const first = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    const second = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    a._emitData(Buffer.from('AAA'))
+    b._emitData(Buffer.from('BBB'))
+    expect(mgr.getScrollback(first.sessionId).toString('utf-8')).toBe('AAA')
+    expect(mgr.getScrollback(second.sessionId).toString('utf-8')).toBe('BBB')
+  })
+
+  it('disposeAll은 모든 세션을 정리한다', () => {
+    const { mgr, a, b } = multiManager()
+    const first = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    const second = mgr.start({ command: 'powershell', args: [], cwd: 'C:\\' })
+    mgr.disposeAll()
+    expect(a.killed).toBe(true)
+    expect(b.killed).toBe(true)
+    expect(mgr.status(first.sessionId)).toBeNull()
+    expect(mgr.status(second.sessionId)).toBeNull()
   })
 })

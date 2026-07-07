@@ -49,3 +49,16 @@ describe('agent-reducer', () => {
     expect(s.pending).toHaveLength(0)
   })
 })
+
+describe('agent-reducer live 필드', () => {
+  it('초기 상태와 새 세션은 live=true 다', () => {
+    expect(initialAgentState().live).toBe(true)
+    expect(startSession(initialAgentState(), 's1').live).toBe(true)
+  })
+
+  it('전이 함수는 live 값을 보존한다', () => {
+    const restored = { ...startSession(initialAgentState(), 's1'), live: false }
+    const next = appendEvent(restored, { type: 'message', role: 'assistant', text: 'x' })
+    expect(next.live).toBe(false)
+  })
+})

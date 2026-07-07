@@ -30,7 +30,7 @@ interface Session {
 }
 
 export class PtyManager {
-  private session: Session | null = null
+  private sessions = new Map<string, Session>()
   private dataCb: ((sessionId: string, data: Buffer) => void) | null = null
   private statusCb: ((info: SessionInfo) => void) | null = null
   private seq = 0
@@ -41,8 +41,7 @@ export class PtyManager {
   onStatus(cb: (info: SessionInfo) => void): void { this.statusCb = cb }
 
   start(opts: StartOpts): SessionInfo {
-    // M2: 단일 세션 — 기존 것이 있으면 정리 후 교체.
-    if (this.session) this.stop(this.session.id)
+    // M4a: 멀티 세션 — 교체하지 않고 Map에 추가한다.
     const id = `s${++this.seq}`
     const pty = this.spawnFn(resolveCommand(opts.command), opts.args, {
       name: 'xterm-256color',
@@ -54,7 +53,7 @@ export class PtyManager {
     })
     const info: SessionInfo = { sessionId: id, status: 'running', pid: pty.pid }
     const session: Session = { id, pty, buffer: new RingBuffer(MAX_SCROLLBACK_BYTES), info }
-    this.session = session
+    this.sessions.set(id, session)
 
     pty.onData((data: string | Buffer) => {
       const buf = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf-8')
@@ -69,14 +68,14 @@ export class PtyManager {
   }
 
   send(sessionId: string, data: string): void {
-    const s = this.session
-    if (!s || s.id !== sessionId || s.info.status !== 'running') return
+    const s = this.sessions.get(sessionId)
+    if (!s || s.info.status !== 'running') return
     if (data.length <= CHUNK_THRESHOLD) { s.pty.write(data); return }
     const parts = chunkInput(data, CHUNK_THRESHOLD)
     let i = 0
     const writeNext = (): void => {
-      const cur = this.session
-      if (!cur || cur.id !== sessionId || cur.info.status !== 'running' || i >= parts.length) return
+      const cur = this.sessions.get(sessionId)
+      if (!cur || cur.info.status !== 'running' || i >= parts.length) return
       cur.pty.write(parts[i++])
       if (i < parts.length) setTimeout(writeNext, CHUNK_DELAY_MS)
     }
@@ -84,28 +83,28 @@ export class PtyManager {
   }
 
   resize(sessionId: string, cols: number, rows: number): void {
-    const s = this.session
-    if (!s || s.id !== sessionId || s.info.status !== 'running') return
+    const s = this.sessions.get(sessionId)
+    if (!s || s.info.status !== 'running') return
     try { s.pty.resize(cols, rows) } catch { /* 일시적 resize 오류 무시 */ }
   }
 
   getScrollback(sessionId: string): Buffer {
-    const s = this.session
-    return s && s.id === sessionId ? s.buffer.replay() : Buffer.alloc(0)
+    const s = this.sessions.get(sessionId)
+    return s ? s.buffer.replay() : Buffer.alloc(0)
   }
 
   status(sessionId: string): SessionInfo | null {
-    return this.session && this.session.id === sessionId ? this.session.info : null
+    return this.sessions.get(sessionId)?.info ?? null
   }
 
   stop(sessionId: string): void {
-    const s = this.session
-    if (!s || s.id !== sessionId) return
+    const s = this.sessions.get(sessionId)
+    if (!s) return
     try { if (s.info.status === 'running') s.pty.kill() } catch { /* 이미 죽음 */ }
-    this.session = null
+    this.sessions.delete(sessionId)
   }
 
   disposeAll(): void {
-    if (this.session) this.stop(this.session.id)
+    for (const id of [...this.sessions.keys()]) this.stop(id)
   }
 }

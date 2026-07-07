@@ -28,12 +28,39 @@ describe('ClaudeAgentManager', () => {
     expect(statuses.at(-1)?.status).toBe('idle')
   })
 
-  it('start 재호출 시 이전 세션을 정리(교체)한다', () => {
+  it('start를 두 번 호출하면 두 세션이 모두 살아있다(교체하지 않음)', () => {
     const mgr = new ClaudeAgentManager(() => fakeQuery)
     const first = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
-    const second = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
+    const second = mgr.start({ projectId: 'p2', cwd: 'C:\\' })
     expect(second.sessionId).not.toBe(first.sessionId)
+    expect(mgr.status(first.sessionId)?.sessionId).toBe(first.sessionId)
+    expect(mgr.status(second.sessionId)?.sessionId).toBe(second.sessionId)
+  })
+
+  it('한 세션 stop이 다른 세션에 영향을 주지 않는다', () => {
+    const mgr = new ClaudeAgentManager(() => fakeQuery)
+    const first = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
+    const second = mgr.start({ projectId: 'p2', cwd: 'C:\\' })
+    mgr.stop(first.sessionId)
     expect(mgr.status(first.sessionId)).toBeNull()
+    expect(mgr.status(second.sessionId)).not.toBeNull()
+  })
+
+  it('이벤트는 시작한 각 세션의 sessionId로 라우팅된다', async () => {
+    const mgr = new ClaudeAgentManager(() => fakeQuery)
+    const seen: string[] = []
+    mgr.onEvent((sid, e) => { if (e.type === 'message') seen.push(sid) })
+    const first = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
+    const second = mgr.start({ projectId: 'p2', cwd: 'C:\\' })
+    await flush(); await flush()
+    expect(seen).toContain(first.sessionId)
+    expect(seen).toContain(second.sessionId)
+  })
+
+  it('세션 id는 재시작 충돌을 피하기 위해 UUID 형식이다', () => {
+    const mgr = new ClaudeAgentManager(() => fakeQuery)
+    const info = mgr.start({ projectId: 'p1', cwd: 'C:\\' })
+    expect(info.sessionId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)
   })
 
   it('알 수 없는 sessionId로의 send/respond는 무시(throw 안 함)', () => {
