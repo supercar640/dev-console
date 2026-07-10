@@ -31,6 +31,10 @@ export const dialogApi = {
   openDirectory: (): Promise<string | null> => window.api.dialog.openDirectory()
 }
 
+export const filesApi = {
+  pickForReference: (): Promise<string[]> => window.api.files.pickForReference()
+}
+
 export const agentsApi = {
   start: (input: AgentStartInput): Promise<AgentSessionInfo> => window.api.agents.start(input),
   send: (sessionId: string, text: string): Promise<void> => window.api.agents.send(sessionId, text),

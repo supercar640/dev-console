@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Project, SessionStatus } from '@shared/types'
 import { useAgentStore, useAgentProject } from '@/stores/agent'
+import { filesApi } from '@/ipc-client'
 import AgentEventItem from '@/components/AgentEventItem'
 import PermissionCard from '@/components/PermissionCard'
 
@@ -30,6 +31,13 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
     else void send(project.id, text)
   }
 
+  const pickFileReferences = async (): Promise<void> => {
+    const paths = await filesApi.pickForReference()
+    if (paths.length === 0) return
+    const references = paths.map((path) => `@${path}`).join(' ')
+    setDraft((current) => `${current}${current.length > 0 && !/\s$/.test(current) ? ' ' : ''}${references}`)
+  }
+
   return (
     <div className="agent">
       {!live && (
@@ -57,6 +65,8 @@ export default function AgentView({ project }: { project: Project }): React.JSX.
       </div>
 
       <div className="agent__input">
+        <button className="btn agent__reference" type="button" title="파일 참조" aria-label="파일 참조"
+          disabled={!live} onClick={() => void pickFileReferences()}>@</button>
         <input className="input" value={draft}
           placeholder={live ? '에이전트에게 지시…' : '지난 작업(읽기 전용) — ▶ 새로 시작으로 이어가기'}
           disabled={!live}

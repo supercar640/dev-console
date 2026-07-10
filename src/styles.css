@@ -425,6 +425,14 @@ body {
   flex-shrink: 0;
 }
 
+.agent__reference {
+  flex: 0 0 34px;
+  width: 34px;
+  padding: 8px 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
 .badge {
   font-family: var(--font-mono);
   font-size: 11px;

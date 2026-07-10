@@ -117,6 +117,10 @@ export interface DevConsoleApi {
     /** 네이티브 폴더 선택 다이얼로그. 취소 시 null. */
     openDirectory(): Promise<string | null>
   }
+  files: {
+    /** 참조할 파일을 복수 선택. 취소 시 빈 배열. */
+    pickForReference(): Promise<string[]>
+  }
 }
 
 /** M2 PtyManager 입력 (spec §6 M2, design D3 범용 명령). */

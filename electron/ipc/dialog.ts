@@ -10,4 +10,12 @@ export function registerDialogHandlers(): void {
     if (result.canceled || result.filePaths.length === 0) return null
     return result.filePaths[0]
   })
+
+  ipcMain.handle('files:pickForReference', async (e): Promise<string[]> => {
+    const win = BrowserWindow.fromWebContents(e.sender)
+    const result = win
+      ? await dialog.showOpenDialog(win, { properties: ['openFile', 'multiSelections'] })
+      : await dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] })
+    return result.canceled ? [] : result.filePaths
+  })
 }

@@ -71,6 +71,9 @@ const api: DevConsoleApi = {
   },
   dialog: {
     openDirectory: () => ipcRenderer.invoke('dialog:openDirectory')
+  },
+  files: {
+    pickForReference: () => ipcRenderer.invoke('files:pickForReference')
   }
 }
 
