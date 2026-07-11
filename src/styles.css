@@ -15,12 +15,18 @@
   --accent-ink: #153243;      /* navy text on ice/accent surfaces */
   --emerald: #00a676;         /* tool marker + attention/permission accent */
   --emerald-soft: rgba(0, 166, 118, 0.15);
-  --danger: #f8333c;          /* deny / error */
-  --danger-hover: #ff4a52;
-  --danger-soft: rgba(248, 51, 60, 0.15);
+  --danger: #ef6f6c;          /* coral from design/dev-consol-colors.png */
+  --danger-hover: #f0b7b3;
+  --danger-ink: #153243;
+  --danger-soft: rgba(239, 111, 108, 0.15);
 
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
-  --font-mono: 'Cascadia Code', 'Consolas', ui-monospace, monospace;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --focus-ring: rgba(204, 251, 254, 0.22);
+
+  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Consolas', ui-monospace, monospace;
 }
 
 * {
@@ -93,19 +99,29 @@ body {
   font-weight: 500;
   padding: 8px 14px;
   border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: var(--bg-elevated);
   color: var(--text-primary);
   cursor: pointer;
-  transition: background 0.12s ease-out, border-color 0.12s ease-out;
+  transition: background 0.12s ease-out, border-color 0.12s ease-out, color 0.12s ease-out;
 }
 
-.btn:hover {
+.btn:not(:disabled):hover {
   background: var(--border);
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-tertiary);
+  opacity: 1;
   cursor: not-allowed;
+}
+
+.btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .btn--primary {
@@ -113,18 +129,19 @@ body {
   color: var(--accent-ink);
 }
 
-.btn--primary:hover {
+.btn--primary:not(:disabled):hover {
   background: var(--accent-hover);
 }
 
 .btn--danger {
   background: var(--danger);
-  color: #ffffff;
+  color: var(--danger-ink);
   border-color: var(--danger);
 }
 
-.btn--danger:hover {
+.btn--danger:not(:disabled):hover {
   background: var(--danger-hover);
+  border-color: var(--danger-hover);
 }
 
 .btn--ghost-danger {
@@ -133,9 +150,15 @@ body {
   color: var(--danger);
 }
 
-.btn--ghost-danger:hover {
+.btn--ghost-danger:not(:disabled):hover {
   background: var(--danger-soft);
   border-color: var(--danger);
+}
+
+.btn--ghost-danger:disabled {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-tertiary);
 }
 
 .form {
@@ -149,8 +172,9 @@ body {
   flex: 1;
   min-width: 200px;
   padding: 8px 12px;
-  background: var(--bg-base);
+  background: var(--bg-surface);
   border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 13px;
@@ -163,6 +187,7 @@ body {
 .input:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .empty {
@@ -183,6 +208,7 @@ body {
   padding: 10px 14px;
   margin-bottom: 16px;
   border-left: 2px solid;
+  border-radius: var(--radius-md);
   font-size: 13px;
 }
 
@@ -210,9 +236,14 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-left: 2px solid transparent;
+  border-radius: var(--radius-lg);
   cursor: pointer;
+  transition: background 0.12s ease-out, border-color 0.12s ease-out;
 }
-.board__row:hover { background: var(--bg-elevated); }
+.board__row:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+}
 
 /* 사람 개입 대기 — 경고 강조(최상단 정렬은 정렬 로직이 담당) */
 .board__row--waiting {
@@ -249,7 +280,7 @@ body {
 .board__idle { color: var(--text-tertiary); }
 
 .board__waiting {
-  color: var(--emerald);
+  color: var(--accent);
   font-weight: 600;
   white-space: nowrap;
   animation: blink 1.4s ease-in-out infinite;
@@ -322,6 +353,8 @@ body {
   background: var(--bg-base);
   padding: 6px;
   border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 /* M3 — Agent 채널 UI (design/dev-console-m3.pen) */
@@ -362,7 +395,7 @@ body {
   background: var(--bg-elevated);
   color: var(--text-secondary);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
@@ -389,7 +422,7 @@ body {
   flex-shrink: 0;
   padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--bg-surface);
   font-size: 12px;
   color: var(--text-secondary);
@@ -413,7 +446,7 @@ body {
   padding: 16px;
   background: var(--bg-surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -443,7 +476,7 @@ body {
 
 .badge--running {
   background: var(--emerald-soft);
-  color: var(--emerald);
+  color: var(--accent);
 }
 
 .badge--waiting_user {
@@ -464,7 +497,7 @@ body {
 
 .badge--done {
   background: var(--emerald-soft);
-  color: var(--emerald);
+  color: var(--accent);
 }
 
 .badge--none {
@@ -488,14 +521,14 @@ body {
   background: var(--accent);
   color: var(--accent-ink);
   padding: 8px 13px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .ev--assistant {
   background: var(--bg-elevated);
   color: var(--text-primary);
   padding: 8px 13px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .ev--tool,
@@ -533,7 +566,7 @@ body {
   border-left: 3px solid var(--emerald);
   background: var(--bg-elevated);
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -551,7 +584,7 @@ body {
   color: var(--text-secondary);
   background: var(--bg-base);
   padding: 7px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   word-break: break-all;
 }
 
@@ -601,7 +634,7 @@ body {
   font-size: 13px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
@@ -635,7 +668,7 @@ body {
   gap: 9px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .sidebar__item:hover { background: var(--bg-elevated); }
