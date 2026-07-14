@@ -1,0 +1,9 @@
+{
+  "name": "m3-sdk-proof",
+  "private": true,
+  "type": "module",
+  "description": "M3 격리 검증 샌드박스 — Agent SDK canUseTool 발화 확인 (hitl/ gitignore)",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "latest"
+  }
+}
